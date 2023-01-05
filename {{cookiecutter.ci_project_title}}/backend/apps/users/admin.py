@@ -7,7 +7,6 @@ from . import models
 class CustomUserAdmin(UserAdmin):
     list_display = [
         "email",
-        "impersonate",
         "is_superuser",
         "is_staff",
         "date_joined",

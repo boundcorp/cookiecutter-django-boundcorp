@@ -51,13 +51,10 @@ ingress:
   postgresql:
     # -- set the postgresql hostname to talk to
     # if unset and .Values.postgresql.enabled == true, will generate the default
-    # @default -- `{{ .Release.Name }}-postgresql`
-    host: '{{ .Release.Name }}-postgresql'
+    host: '{{cookiecutter.ci_project_title}}-postgresql'
     # -- postgresql Database name
-    # @default -- `authentik`
     name: "{{cookiecutter.ci_project_title}}"
     # -- postgresql Username
-    # @default -- `authentik`
     user: "{{cookiecutter.ci_project_title}}"
     password: ""
     port: 5432
@@ -79,8 +76,7 @@ ingress:
       insecure_skip_verify: false
   redis:
     # -- set the redis hostname to talk to
-    # @default -- `{{ .Release.Name }}-redis-master`
-    host: '{{ .Release.Name }}-redis-master'
+    host: '{{ cookiecutter.ci_project_title }}-redis-master'
     password: ""
 
 env:

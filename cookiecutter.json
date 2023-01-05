@@ -9,6 +9,11 @@
     "site_title": "",
     "author": "",
     "email": "",
-    "version": "0.1.0"
-    
+    "version": "0.1.0",
+    "_copy_without_render": [
+        "*.html",
+        "fixtures/",
+        "deploy/chart/templates",
+        "deploy/chart/"
+    ]
 }
