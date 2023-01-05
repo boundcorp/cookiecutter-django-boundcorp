@@ -1,0 +1,3 @@
+#!/bin/bash
+ROLE=$(test -z "$ROLE" && echo "dev" || echo "$ROLE")
+docker-compose -p $CI_PROJECT_TITLE -f compose/$ROLE.yml $*

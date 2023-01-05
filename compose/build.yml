@@ -1,0 +1,20 @@
+version: "2.1"
+services:
+  minio-with-buckets:
+    build:
+      context: ./minio
+    image: minio-with-buckets
+  {{cookiecutter.ci_project_title}}-django-dev:
+    build:
+      context: ../
+      dockerfile: compose/django/Dockerfile
+      args:
+        PYTHON_VERSION: ${PYTHON_VERSION}
+    image: ${CI_PROJECT_TITLE}-django-dev
+  {{cookiecutter.ci_project_title}}-django:
+    build:
+      context: ../
+      dockerfile: Dockerfile
+      args:
+        PYTHON_VERSION: ${PYTHON_VERSION}
+    image: ${CI_REGISTRY_IMAGE}:latest
