@@ -1,7 +1,8 @@
 {
-    "ci_project_title": "",
+    "ci_project_name": "",
     "ci_project_path": "",
     "development_backend_port": "8822",
+    "development_frontend_port": "8833",
     "full_name": "",
     "repo_name": "",
     "production_hostname": "",
