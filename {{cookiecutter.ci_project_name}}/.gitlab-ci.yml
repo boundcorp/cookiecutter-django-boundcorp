@@ -45,7 +45,7 @@ test_backend:
     - echo $GITCRYPT_SYMETRIC_KEY | base64 -d | tee /tmp/.gitcrypt.key &>/dev/null
     - git-crypt unlock /tmp/.gitcrypt.key
     - gcloud auth activate-service-account --key-file $GCP_SERVICE_KEY
-    - gcloud container clusters get-credentials justposted --zone=us-west2-a --project=$GCP_PROJECT_ID
+    - gcloud container clusters get-credentials $CI_PROJECT_NAME --zone=us-west2-a --project=$GCP_PROJECT_ID
     - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
     - helm dependency update ./deploy/chart/
   script:
@@ -67,6 +67,6 @@ deploy_production:
     ENV: production
   environment:
     name: production
-    url: https://justposted.com
+    url: https://{{cookiecutter.production_hostname}}
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

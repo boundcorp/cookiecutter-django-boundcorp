@@ -4,7 +4,7 @@ services:
     build:
       context: ./minio
     image: minio-with-buckets
-  justposted-django-dev:
+  {{cookiecutter.ci_project_name}}-django-dev:
     build:
       context: ../
       dockerfile: Dockerfile
@@ -12,7 +12,7 @@ services:
       args:
         PYTHON_VERSION: ${PYTHON_VERSION}
     image: ${CI_PROJECT_NAME}/django-dev:${CI_PROJECT_NAME}
-  justposted-django:
+  {{cookiecutter.ci_project_name}}-django:
     build:
       context: ../
       dockerfile: Dockerfile
