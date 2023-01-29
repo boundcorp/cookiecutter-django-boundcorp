@@ -4,7 +4,7 @@ ARG node_image=node:14.21.1
 #
 #
 # Base stage
-FROM ${image_version}-alpine3.16 as base
+FROM ${image_version}-alpine3.17 as base
 
 ENV PATH=/app/.venv/bin:$PATH
 ENV LANG=C.UTF-8
@@ -55,18 +55,17 @@ RUN apk add --no-cache \
     curl-dev \
     libxml2-dev \
     libxslt-dev \
-    libressl-dev \
     libffi-dev \
     openssl \
     freetype-dev
 
 RUN pip install --no-cache-dir --upgrade pipenv pip
-COPY Pipfile Pipfile.lock /app/
+COPY Pipfile Pipfile.lock requirements.freeze.txt /app/
 
 WORKDIR /app
 # In production, virtualenv is created in /app/.venv so it can be copied
 # to the final image
-RUN PIPENV_VENV_IN_PROJECT=true pipenv install --deploy
+RUN PIPENV_VENV_IN_PROJECT=true pipenv run pip3 install -r requirements.freeze.txt
 
 COPY backend/ /app/backend
 COPY fixtures/ /app/fixtures

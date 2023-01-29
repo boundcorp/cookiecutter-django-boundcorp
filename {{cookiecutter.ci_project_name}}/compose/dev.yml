@@ -2,8 +2,8 @@ version: '2.1'
 services:
   psql:
     image: sameersbn/postgresql:9.6-2
-    ports:
-      - '5432:5432'
+    # ports: ['5432:5432'] # uncomment this to connect from a local desktop sql client
+    expose: ["5432"]
 
     environment:
       DB_NAME: ${CI_PROJECT_NAME}

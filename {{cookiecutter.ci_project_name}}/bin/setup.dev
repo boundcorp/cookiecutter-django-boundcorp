@@ -20,6 +20,7 @@ if [[ "$1" -eq "-y" ]] ; then
   sleep 3
   bin/dc up -d
 
+  bin/dj bin/wait-for-psql
   bin/djmanage migrate
   exit
 fi

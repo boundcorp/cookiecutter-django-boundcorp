@@ -8,7 +8,7 @@ develop:
 	cd frontend && yarn start
 
 deps:
-	pipenv install
+	make pip
 	bin/dc build
 	cd frontend && yarn
 
@@ -33,6 +33,11 @@ format:
 
 frontend_dev:
 	cd frontend && yarn && yarn start
+
+pip:
+	pipenv install
+	pipenv lock
+	pipenv run pip3 freeze > requirements.freeze.txt
 
 precommit:
 	make format

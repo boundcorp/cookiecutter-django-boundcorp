@@ -16,6 +16,7 @@ cookiecutter . --no-input \
 echo "Created template in $NAME/"
 pushd $NAME
 git init
+git add .
 echo "git initialized"
 direnv allow
 
@@ -25,11 +26,8 @@ bin/setup.dev
 echo "Verifying tests"
 source .envrc
 make test
-echo "Migrating database"
-bin/dj bin/wait-for-psql
-djmanage migrate
-echo "Installing frontend dependencies"
-pushd frontend && yarn && popd
+echo "Installing deps"
+make deps
 echo "Verifying repository"
 make precommit
 echo "Building release"
