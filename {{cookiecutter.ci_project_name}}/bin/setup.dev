@@ -15,7 +15,11 @@ if [[ "$1" -eq "-y" ]] ; then
   bin/setup.venv
   source .envrc
   bin/dc build
+  # give postgres time to start before starting everything else
+  bin/dc up -d psql
+  sleep 3
   bin/dc up -d
+
   bin/djmanage migrate
   exit
 fi

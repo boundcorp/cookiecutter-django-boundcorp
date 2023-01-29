@@ -3,7 +3,7 @@ set -e
 
 cd $(dirname $0)/..
 
-[[ "$CI" == "true" ]] || [[ $(kubectx -c) == $GCP_KUBE_CLUSTER ]] || (echo "Must be attached to the {{cookiecutter.ci_project_name}} cluster" && exit 1)
+[[ "$CI" == "true" ]] || [[ $(kubectx -c) == $GCP_KUBE_CLUSTER ]] || (echo "Must be attached to the $GCP_KUBE_CLUSTER cluster" && exit 1)
 
 VERSION=$(test -z "$1" && echo "latest" || echo "$1")
 NAMESPACE=$(test -z "$2" && echo "staging" || echo "$2")

@@ -1,12 +1,12 @@
 overwrite: true
 schema: "../schema.graphql"
-documents: "src/**/*.graphql"
+documents: "../backend/**/*.graphql"
 generates:
-  src/generated/graphql.tsx:
+  generated/graphql.tsx:
     plugins:
-      - "typescript"
-      - "typescript-operations"
-      - "typescript-react-apollo"
+      - typescript
+      - typescript-operations
+      - typescript-react-apollo
     config:
       reactApolloVersion: 3
       withHooks: true

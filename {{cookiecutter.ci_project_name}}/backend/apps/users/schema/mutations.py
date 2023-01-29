@@ -15,6 +15,7 @@ from graphql_auth.mutations import (
 )
 
 from backend.apps.users.models import User
+from backend.utils.graphql import success_or_error, Error
 
 from . import types
 
@@ -30,17 +31,20 @@ class CreateUser(graphene.Mutation):
     class Arguments:
         input = CreateUserInput()
 
-    user = graphene.Field(types.User)
+    Output = success_or_error(types.UserProfile, name="CreateUserResult")
 
     def mutate(self, info, input):
-        user = User.objects.create(
-            **input,
-            username=input["email"],
-            password="",
-            created_at=timezone.now().date(),
-        )
+        try:
+            user = User.objects.create(
+                **input,
+                username=input["email"],
+                password="",
+                created_at=timezone.now().date(),
+            )
 
-        return CreateUser(user=user)
+            return types.UserProfile(**user.__dict__)
+        except Exception as e:
+            return Error(message=e)
 
 
 

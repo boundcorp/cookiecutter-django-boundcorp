@@ -10,7 +10,7 @@ from pytest_django.lazy_django import skip_if_no_django
 from backend.apps.users.factories import UserFactory
 from backend.apps.users.models import User
 
-GRAPHQL_ENDPOINT = '/graphql/'
+GRAPHQL_ENDPOINT = '/api/graphql/'
 
 
 @pytest.fixture

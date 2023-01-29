@@ -20,8 +20,8 @@ services:
       MINIO_ROOT_USER: dev
       MINIO_ROOT_PASSWORD: test1234
       MINIO_BUCKET: ${CI_PROJECT_NAME}-assets
-    ports: ["9000:9000", "9001:9001"]
-    #expose: ["9000", "9001"]
+    #ports: ["9000:9000", "9001:9001"]
+    expose: ["9000", "9001"]
     command: minio server /data --console-address ":9001"
     volumes:
       - /data/${CI_PROJECT_NAME}/minio:/data
@@ -34,6 +34,7 @@ services:
       - ../:/app
       - ../.pythonrc:/root/.pythonrc
       - ../.pythonhist:/root/.pythonhist
+    user: "${UID_GID}"
     links:
       - psql
       - minio
@@ -48,7 +49,7 @@ services:
     command: "bash"
     entrypoint: []
 
-  runserver:
+  backend:
     extends:
       service: ${CI_PROJECT_NAME}-django-dev
       file: build.yml
@@ -60,6 +61,7 @@ services:
       - minio
     volumes:
       - ../:/app
+    user: "${UID_GID}"
     environment:
       - DJANGO_SETTINGS_MODULE
       - DEVELOP_BACKEND_PORT
@@ -67,7 +69,7 @@ services:
       - ENV
       - SECRET_KEY=develop_key
       - DEBUG=true
-      - SERVICE=runserver
+      - SERVICE=backend
 
   qcluster:
     extends:
@@ -79,6 +81,7 @@ services:
       - minio
     volumes:
       - ../:/app
+    user: "${UID_GID}"
     environment:
       - DJANGO_SETTINGS_MODULE
       - DEVELOP_BACKEND_PORT
@@ -87,3 +90,28 @@ services:
       - SECRET_KEY=develop_key
       - DEBUG=true
       - SERVICE=qcluster
+
+  frontend:
+    extends:
+      service: ${CI_PROJECT_NAME}-django-dev
+      file: build.yml
+    command: "yarn dev"
+    entrypoint: []
+    working_dir: /app/frontend
+    ports:
+      - "$DEVELOP_FRONTEND_PORT:3000"
+    links:
+      - psql
+      - minio
+    volumes:
+      - ../:/app
+    user: "${UID_GID}"
+    environment:
+      - DEVELOP_BACKEND_PORT
+      - DEVELOP_FRONTEND_PORT
+      - APOLLO_BACKEND_URI=http://backend:8000/api/graphql/
+      - NEXT_PUBLIC_APOLLO_URI=http://localhost:$DEVELOP_BACKEND_PORT/api/graphql/
+      - ENV
+      - DEBUG=true
+      - SERVICE=backend
+

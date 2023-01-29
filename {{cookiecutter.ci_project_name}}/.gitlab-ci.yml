@@ -9,7 +9,11 @@ variables:
   # for git crypt
   GIT_STRATEGY: clone
   GIT_DEPTH: 1
-
+  POSTGRES_DB: postgres
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  PGUSER: postgres
+  PGPASSWORD: postgres
 
 build_docker_image:
   stage: build
@@ -34,7 +38,11 @@ test_backend:
   image: "${CI_REGISTRY_IMAGE}/dev:${CI_COMMIT_SHA}"
   needs:
     - build_docker_image
+  services:
+    - name: postgis/postgis:latest
+      alias: postgres
   script:
+    - export DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres
     - make test_backend_coverage
 
 .deploy:
@@ -44,8 +52,11 @@ test_backend:
   before_script:
     - echo $GITCRYPT_SYMETRIC_KEY | base64 -d | tee /tmp/.gitcrypt.key &>/dev/null
     - git-crypt unlock /tmp/.gitcrypt.key
-    - gcloud auth activate-service-account --key-file $GCP_SERVICE_KEY
-    - gcloud container clusters get-credentials $CI_PROJECT_NAME --zone=us-west2-a --project=$GCP_PROJECT_ID
+
+    # Uncomment these lines to authenticate with the GKE cluster
+    #- gcloud auth activate-service-account --key-file $GCP_SERVICE_KEY
+    #- gcloud container clusters get-credentials {{cookiecutter.ci_project_name}} --zone=us-west2-a --project=$GCP_PROJECT_ID
+
     - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
     - helm dependency update ./deploy/chart/
   script:

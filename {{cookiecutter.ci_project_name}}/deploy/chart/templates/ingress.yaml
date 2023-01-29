@@ -1,5 +1,4 @@
-{{- if .Values.ingress.enabled -}}
-  {{- $apiIsStable := include "soillabs.ingress.isStable" . -}}
+{{- $apiIsStable := true -}}
 apiVersion: {{ include "common.capabilities.ingress.apiVersion" . }}
 kind: Ingress
 metadata:
@@ -38,4 +37,3 @@ spec:
                 name: {{ include "common.names.fullname" $ }}-frontend
                 port:
                   name: http
-{{- end }}

@@ -16,7 +16,7 @@ docker_clean_build:
 	bin/dc build --no-cache runserver
 
 generate:
-	pipenv run python manage.py graphql_schema
+	bin/dj python manage.py graphql_schema
 	cd frontend && yarn gen
 
 clean_locks:
@@ -41,16 +41,13 @@ precommit:
 
 # CI Pipeline & Tests
 
-test: # Runs both backend & frontend Tests
-	pytest
-	cd frontend && yarn test:nowatch
+test:
+	bin/dj pytest
 
 test_backend_coverage:
 	pytest --cov=backend/apps --cov-config=.coveragerc --cov-report html --cov-report term
 	echo "View coverage report: file://${PWD}/htmlcov/index.html"
 
-test_backend_docker: # Only backend tests, within docker container
-	bin/djtest
 
 export_version:
 	VERSION=$$(date | md5sum | awk '{print $1}')
@@ -66,10 +63,10 @@ clean:
 	find . -name '*.pyc' -delete
 
 fix-file-ownership: # Fix docker-created files that are owned by root user
-	find . -uid 0 &>/dev/null && sudo chown -R ${USER}:${USER} .
+	bin/fix-file-ownership
 
 mypy:
-	pipenv run mypy
+	bin/dj mypy
 
 isort:
 	pipenv run isort backend

@@ -27,7 +27,7 @@ DEBUG = os.environ.get("DEBUG", "") == "true"
 ROOT_URLCONF = "backend.settings.urls"
 
 GRAPHENE = {
-    "SCHEMA": "backend.apps.schema.application_schema",
+    "SCHEMA": "backend.settings.schema.application_schema",
     "SCHEMA_OUTPUT": "./schema.graphql",
     "MIDDLEWARE": ["graphql_jwt.middleware.JSONWebTokenMiddleware"],
 }
@@ -42,6 +42,8 @@ DATABASES = {
     "default": env.db(
         "DATABASE_URL",
         default=f"psql://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_NAME}",
+        # To enable postgis engine:
+        # engine="django.contrib.gis.db.backends.postgis",
     ),
 }
 
@@ -53,9 +55,6 @@ APP_HOSTNAME = os.environ.get("APP_HOSTNAME", "{{cookiecutter.production_hostnam
 
 SERVER_EMAIL = os.environ.get("SERVER_EMAIL", "noreply@" + APP_HOSTNAME)
 DEFAULT_FROM_EMAIL = SERVER_EMAIL
-
-# Number of minutes to buffer some Kit updates so they don't get spammy
-EMAIL_NOTIFICATION_BUFFER_MINUTES = 60
 
 AUTH_USER_MODEL = "users.User"
 AUTHENTICATION_BACKENDS = ["graphql_auth.backends.GraphQLAuthBackend", "django.contrib.auth.backends.ModelBackend"]
@@ -190,9 +189,9 @@ DEBUG_TOOLBAR_CONFIG = {
 
 ACCOUNT_OPEN_SIGNUP = False
 
-CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_ALLOW_ALL = DEBUG
 
-CORS_ORIGIN_WHITELIST = ("http://localhost:3000", "http://127.0.0.1:3000")
+CORS_ORIGIN_WHITELIST = ("http://localhost:8833",)
 CORS_ALLOW_CREDENTIALS = True
 from corsheaders.defaults import default_headers
 
@@ -256,7 +255,6 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", "*"]
 
-
 credentials_file = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "")
 
 if os.path.exists(credentials_file):
@@ -280,7 +278,6 @@ else:
     MINIO_STORAGE_MEDIA_USE_PRESIGNED = env_variable_truthy("MINIO_STORAGE_MEDIA_USE_PRESIGNED", "true")
 
     DEFAULT_FILE_STORAGE = "minio_storage.storage.MinioMediaStorage"
-
 
 if not DEBUG:
     # STAGING AND PROD
@@ -307,15 +304,6 @@ else:
 
 APPEND_SLASH = True
 
-WEBPACK_LOADER = {
-    "DEFAULT": {
-        "CACHE": not DEBUG,
-        "STATS_FILE": os.path.join(BASE_DIR, "frontend/webpack-stats.json"),
-        "POLL_INTERVAL": 2,
-        "IGNORE": [r".+\.hot-update.js", r".+\.map"],
-    }
-}
-
 GRAPHQL_JWT = {
     "JWT_VERIFY_EXPIRATION": True,
     "JWT_LONG_RUNNING_REFRESH_TOKEN": True,
@@ -341,7 +329,7 @@ GRAPHQL_AUTH = {
         "protocol": PROTOCOL,
         "domain": APP_HOSTNAME + (FRONTEND_PORT != 80 and f":{FRONTEND_PORT}" or ""),
     },
-    "LOGIN_ALLOWED_FIELDS": ["email__iexact"],
+    "LOGIN_ALLOWED_FIELDS": ["email__iexact", "username__iexact"],
     "REGISTER_MUTATION_FIELDS": [
         "email",
         "username",

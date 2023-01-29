@@ -1,9 +1,9 @@
 from django.contrib.auth.admin import UserAdmin
-from backend.apps.common import admin
+from backend.utils.admin import register
 
 from . import models
 
-@admin.register(models.User)
+@register(models.User)
 class CustomUserAdmin(UserAdmin):
     list_display = [
         "email",

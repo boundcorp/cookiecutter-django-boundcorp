@@ -5,7 +5,7 @@ from graphql_auth.models import UserStatus
 from backend.apps.users import models
 
 
-class User(DjangoObjectType):
+class UserProfile(DjangoObjectType):
     verified = graphene.Boolean()
 
     def resolve_verified(parent, info):
@@ -18,6 +18,7 @@ class User(DjangoObjectType):
             "id",
             "is_staff",
             "email",
+            "username",
             "first_name",
             "last_name",
         ]

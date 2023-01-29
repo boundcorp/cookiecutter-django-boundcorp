@@ -6,8 +6,8 @@ from django.urls import path, re_path
 from graphene_django.views import GraphQLView
 from rest_framework.routers import DefaultRouter
 
-from backend.apps.common.admin import admin_site
-from backend.apps.utils.views import healthz
+from backend.utils.admin import admin_site
+from backend.utils.views import healthz
 
 # Unused
 api_router = DefaultRouter(trailing_slash=True)
@@ -19,7 +19,7 @@ urlpatterns = [
     path("mgmt/", admin_site.urls),
     path("healthz/", healthz),
     path(
-        "graphql/",
+        "api/graphql/",
         GraphQLView.as_view(
             graphiql=True,
         ),

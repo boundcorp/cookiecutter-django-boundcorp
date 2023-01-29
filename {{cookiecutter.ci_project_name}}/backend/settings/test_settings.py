@@ -35,5 +35,3 @@ STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
 BASE_URL = f"http://localhost:{BACKEND_PORT}"
 EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
-
-CHECKOUT_IMMEDIATE_FULFILLMENT = False

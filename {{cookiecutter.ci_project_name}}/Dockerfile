@@ -24,6 +24,19 @@ RUN apk add --no-cache \
     curl-dev \
     build-base
 
+# GeoDjango dependencies - commented out to keep the image lightweight, but easy to add
+# from: https://stackoverflow.com/questions/58403178/geodjango-cant-find-gdal-on-docker-python-alpine-based-image
+
+# RUN apk add --no-cache --upgrade postgresql-client libpq \
+#      && apk add --no-cache --upgrade --virtual .build-deps postgresql-dev zlib-dev jpeg-dev alpine-sdk \
+#      && apk add --no-cache --upgrade geos proj gdal binutils
+
+# RUN ln -s /usr/lib/libproj.so.25 /usr/lib/libproj.so \
+#    && ln -s /usr/lib/libgdal.so.31 /usr/lib/libgdal.so \
+#    && ln -s /usr/lib/libgeos_c.so.1 /usr/lib/libgeos_c.so
+
+#ENV GDAL_LIBRARY_PATH='/usr/lib/libgdal.so'
+
 #
 #
 # Builder stage
@@ -56,6 +69,7 @@ WORKDIR /app
 RUN PIPENV_VENV_IN_PROJECT=true pipenv install --deploy
 
 COPY backend/ /app/backend
+COPY fixtures/ /app/fixtures
 COPY manage.py wsgi.py /app/
 
 COPY ./compose/django/*.sh /
@@ -95,9 +109,10 @@ RUN yarn install
 
 
 FROM frontend-builder as frontend
-# frontend container has the fully built frontend app, too fat
+# frontend container has the fully built frontend app, this stage is too fat to deploy quickly!
 COPY frontend/ /app/frontend/
 RUN yarn && yarn build
+
 
 
 #
@@ -129,10 +144,15 @@ FROM ${image_version} as dev
 ENV LANG C.UTF-8
 ENV PYTHONUNBUFFERED 1
 
-RUN apt update -yq && apt install -yq netcat
+RUN apt update -yq && apt install -yq \
+    netcat gcc python3-dev libpq-dev libxml2-dev libxslt-dev \
+    libcurl4-openssl-dev libssl-dev libffi-dev
 
 RUN pip install --no-cache-dir --upgrade pipenv pip \
     && mkdir /app
+
+# postgis dependencies - uncomment for postgis in development
+# RUN apt install -yq libgdal-dev libproj-dev
 
 WORKDIR /app
 
@@ -140,6 +160,22 @@ ADD Pipfile Pipfile.lock /app/
 
 # In dev, pipfile is installed with --system, so it persists even if we mount /app from outside
 RUN pipenv install --dev --system
+
+ENV NODE_VERSION=16.13.0
+RUN apt install -y curl
+ENV NVM_DIR=/nvm
+RUN mkdir -p $NVM_DIR
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}
+RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION}
+RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
+ENV PATH="${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}"
+RUN node --version
+RUN npm --version
+RUN npm install --global yarn
+
+# symlink yarn because it won't be on the path when we change UID/GID!
+RUN ln -sf /root/.nvm/versions/node/v16.13.0/bin /usr/yarn
 
 COPY compose/django/*.sh /
 RUN chmod +x /*.sh

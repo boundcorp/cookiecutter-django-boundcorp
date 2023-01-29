@@ -2,7 +2,7 @@
     "ci_project_name": "",
     "ci_project_path": "",
     "development_backend_port": "8822",
-    "development_frontend_port": "8833",
+    "development_frontend_port": "2288",
     "full_name": "",
     "repo_name": "",
     "production_hostname": "",
@@ -15,6 +15,8 @@
         "*.html",
         "fixtures/",
         "deploy/chart/templates",
-        "deploy/chart/"
+        "deploy/chart/",
+        "frontend/node_modules",
+        "frontend/**/*.tsx"
     ]
 }

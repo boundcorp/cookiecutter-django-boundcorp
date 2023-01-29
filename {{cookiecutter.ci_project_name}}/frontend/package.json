@@ -2,69 +2,44 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {
-    "@apollo/client": "^3.5.10",
-    "@emotion/react": "^11.8.2",
-    "@emotion/styled": "^11.8.1",
-    "@graphql-codegen/cli": "^2.6.2",
-    "graphql": "^16.3.0",
-    "lodash": "^4.17.21",
-    "notistack": "^2.0.3",
-    "@hookform/error-message": "^2.0.0",
-    "@hookform/resolvers": "^2.8.8",
-    "@mui/icons-material": "^5.5.1",
-    "@mui/material": "^5.5.1",
-    "@mui/styles": "^5.5.1",
-    "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^27.5.2",
-    "@types/node": "^16.18.11",
-    "@types/react": "^18.0.26",
-    "@types/react-dom": "^18.0.10",
-    "react": "^18.2.0",
-    "react-hook-form": "^7.28.0",
-    "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1",
-    "typescript": "^4.9.4",
-    "web-vitals": "^2.1.4",
-    "webpack-bundle-tracker": "^1.8.0"
-  },
   "scripts": {
-    "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
-    "test": "react-app-rewired test",
-    "test:nowatch": "react-app-rewired test --watchAll=false",
-    "eject": "react-scripts eject",
-    "gen": "graphql-codegen --config codegen.yml"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "gen": "graphql-codegen",
+    "lint": "next lint"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "dependencies": {
+    "@apollo/client": "^3.7.3",
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@hookform/error-message": "^2.0.1",
+    "@mui/icons-material": "^5.11.0",
+    "@mui/lab": "^5.0.0-alpha.116",
+    "@mui/material": "^5.11.4",
+    "@next/font": "13.1.1",
+    "@types/node": "18.11.18",
+    "@types/react": "18.0.26",
+    "@types/react-dom": "18.0.10",
+    "eslint": "^8.31.0",
+    "eslint-config-next": "13.1.1",
+    "lodash": "^4.17.21",
+    "next": "13.1.1",
+    "notistack": "^2.0.8",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-hook-form": "^7.42.1",
+    "typescript": "^4.9.4"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "2.6.2",
-    "@graphql-codegen/introspection": "2.1.1",
-    "@graphql-codegen/typescript": "2.4.7",
-    "@graphql-codegen/typescript-operations": "2.3.4",
-    "@graphql-codegen/typescript-react-apollo": "3.2.10",
-    "codegen": "^0.1.0",
-    "customize-cra": "^1.0.0",
-    "react-app-rewired": "^2.2.1",
-    "snake-case-typescript": "^0.0.2"
+    "@graphql-codegen/cli": "2.16.4",
+    "@graphql-codegen/client-preset": "1.2.6",
+    "@graphql-codegen/import-types-preset": "^1.18.0",
+    "@graphql-codegen/typescript": "1.17.11",
+    "@graphql-codegen/typescript-operations": "1.17.8",
+    "@graphql-codegen/typescript-react-apollo": "2.0.7",
+    "@types/lodash": "^4.14.191",
+    "graphql": "^15.7.2",
+    "ts-node": "^10.9.1"
   }
 }
