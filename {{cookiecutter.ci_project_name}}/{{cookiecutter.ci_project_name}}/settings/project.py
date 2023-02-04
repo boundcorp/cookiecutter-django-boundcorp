@@ -24,10 +24,10 @@ env = environ.Env(
 ENVIRONMENT = os.environ.get("APP_ENV", Environments.DEVELOPMENT).lower()
 BACKEND_PORT = int(os.environ.get("DEVELOP_BACKEND_PORT", 8000))
 DEBUG = os.environ.get("DEBUG", "") == "true"
-ROOT_URLCONF = "backend.settings.urls"
+ROOT_URLCONF = "{{cookiecutter.ci_project_name}}.settings.urls"
 
 GRAPHENE = {
-    "SCHEMA": "backend.settings.schema.application_schema",
+    "SCHEMA": "{{cookiecutter.ci_project_name}}.settings.schema.application_schema",
     "SCHEMA_OUTPUT": "./schema.graphql",
     "MIDDLEWARE": ["graphql_jwt.middleware.JSONWebTokenMiddleware"],
 }
@@ -79,11 +79,11 @@ INSTALLED_APPS = [
     "django_extensions",
     "debug_toolbar",
     "anymail",
-    "backend.apps.users",
+    "{{cookiecutter.ci_project_name}}.apps.users",
 ]
 
 SITE_ROOT = PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
-BACKEND_FOLDER = SITE_ROOT + "/backend"
+BACKEND_FOLDER = SITE_ROOT + "/{{cookiecutter.ci_project_name}}"
 
 
 def root(*x):
@@ -165,7 +165,7 @@ LOGGING = {
             "handlers": ["null"],
             "propagate": False,
         },
-        "backend": {
+        "{{cookiecutter.ci_project_name}}": {
             "handlers": ["console"],
             "level": "INFO",
         },

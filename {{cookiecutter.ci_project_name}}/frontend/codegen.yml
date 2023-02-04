@@ -1,6 +1,6 @@
 overwrite: true
 schema: "../schema.graphql"
-documents: "../backend/**/*.graphql"
+documents: "../{{cookiecutter.ci_project_name}}/**/*.graphql"
 generates:
   generated/graphql.tsx:
     plugins:

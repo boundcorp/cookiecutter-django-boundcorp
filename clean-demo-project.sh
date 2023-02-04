@@ -12,4 +12,4 @@ fi
 rm -rf demo || true
 sudo rm -rf /data/$NAME || true
 
-./create-test-project.sh $NAME
+./create-demo-project.sh $NAME

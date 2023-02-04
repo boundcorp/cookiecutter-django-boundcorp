@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-test -z "$DJANGO_SETTINGS_MODULE" && export DJANGO_SETTINGS_MODULE="backend.settings"
+test -z "$DJANGO_SETTINGS_MODULE" && export DJANGO_SETTINGS_MODULE="{{cookiecutter.ci_project_name}}.settings"
 
 echo "Using settings: $DJANGO_SETTINGS_MODULE"
 

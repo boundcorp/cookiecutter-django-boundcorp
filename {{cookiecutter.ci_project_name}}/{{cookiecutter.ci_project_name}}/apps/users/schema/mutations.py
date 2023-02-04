@@ -14,8 +14,8 @@ from graphql_auth.mutations import (
     VerifyToken,
 )
 
-from backend.apps.users.models import User
-from backend.utils.graphql import success_or_error, Error
+from {{cookiecutter.ci_project_name}}.apps.users.models import User
+from {{cookiecutter.ci_project_name}}.utils.graphql import success_or_error, Error
 
 from . import types
 

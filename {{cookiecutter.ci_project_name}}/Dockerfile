@@ -67,7 +67,7 @@ WORKDIR /app
 # to the final image
 RUN PIPENV_VENV_IN_PROJECT=true pipenv run pip3 install -r requirements.freeze.txt
 
-COPY backend/ /app/backend
+COPY {{cookiecutter.ci_project_name}}/ /app/{{cookiecutter.ci_project_name}}
 COPY fixtures/ /app/fixtures
 COPY manage.py wsgi.py /app/
 

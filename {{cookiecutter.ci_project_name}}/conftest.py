@@ -7,8 +7,8 @@ import pytest
 from graphql_jwt.shortcuts import get_token
 from pytest_django.lazy_django import skip_if_no_django
 
-from backend.apps.users.factories import UserFactory
-from backend.apps.users.models import User
+from {{cookiecutter.ci_project_name}}.apps.users.factories import UserFactory
+from {{cookiecutter.ci_project_name}}.apps.users.models import User
 
 GRAPHQL_ENDPOINT = '/api/graphql/'
 

@@ -3,16 +3,16 @@ set -e
 
 cd $(dirname $0)/..
 
-[[ "$CI" == "true" ]] || [[ $(kubectx -c) == $GCP_KUBE_CLUSTER ]] || (echo "Must be attached to the $GCP_KUBE_CLUSTER cluster" && exit 1)
+[[ "$CI" == "true" ]] || [[ $(kubectx -c) == $KUBE_CLUSTER ]] || (echo "Must be attached to the $KUBE_CLUSTER cluster" && exit 1)
 
 VERSION=$(test -z "$1" && echo "latest" || echo "$1")
-NAMESPACE=$(test -z "$2" && echo "staging" || echo "$2")
-VALUES=$(test -z "$3" && echo "helm-values.$NAMESPACE.secrets.yaml" || echo "$3")
+CHANNEL=$(test -z "$2" && echo "staging" || echo "$2")
+VALUES=$(test -z "$3" && echo "helm-values.$CHANNEL.secrets.yaml" || echo "$3")
 
 for TAG_IMAGE in "release-backend" "release-frontend"; do
-  export SUFFIX="$NAMESPACE/$TAG_IMAGE"
+  export SUFFIX="$CHANNEL/$TAG_IMAGE"
   export SOURCE_IMAGE="$CI_REGISTRY_IMAGE/$TAG_IMAGE:$VERSION"
-  export TAG="$CI_REGISTRY_IMAGE/$NAMESPACE/$TAG_IMAGE:$VERSION"
+  export TAG="$CI_REGISTRY_IMAGE/$CHANNEL/$TAG_IMAGE:$VERSION"
 
   echo
   echo "********************************"
@@ -25,13 +25,14 @@ for TAG_IMAGE in "release-backend" "release-frontend"; do
   docker push "$TAG"
 
 done
-echo "Deploying helm release $CI_PROJECT_NAME-$NAMESPACE..."
+NAMESPACE="${CI_PROJECT_NAME}-${CHANNEL}"
+echo "Deploying helm release into $NAMESPACE..."
 
 
 kubectl get pods -n $NAMESPACE
 
-helm upgrade --install $CI_PROJECT_NAME-$NAMESPACE deploy/chart/ \
+helm upgrade --install $CI_PROJECT_NAME deploy/chart/ \
     --values="$VALUES" \
     -n $NAMESPACE --create-namespace \
-    --set image.repository=$CI_REGISTRY_IMAGE/$NAMESPACE \
+    --set image.repository=$CI_REGISTRY_IMAGE/$CHANNEL \
     --set image.tag=$VERSION

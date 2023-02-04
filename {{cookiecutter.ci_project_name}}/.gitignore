@@ -5,7 +5,7 @@
 .local_env
 .vscode
 # IMPORTANT: only ignore /static (root folder)
-# do not ignore sub-static folders (like backend/apps/samples/static/)
+# do not ignore sub-static folders (like {{cookiecutter.ci_project_name}}/apps/samples/static/)
 /static
 env
 compose/django/pip.cache

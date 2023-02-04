@@ -4,7 +4,7 @@ import uuid
 from django.db import models
 from django.forms.models import model_to_dict
 
-log = logging.getLogger("backend")
+log = logging.getLogger("{{cookiecutter.ci_project_name}}")
 
 
 def _generate_id():

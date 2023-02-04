@@ -11,3 +11,11 @@ dependencies:
   - name: common
     version: 1.x.x
     repository: https://charts.bitnami.com/bitnami
+  - name: postgresql
+    version: "12.1.13"
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+  - name: minio
+    version: "5.0.4"
+    repository: https://charts.min.io/
+    condition: minio.enabled

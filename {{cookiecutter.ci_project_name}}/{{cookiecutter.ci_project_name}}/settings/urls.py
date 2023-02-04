@@ -6,8 +6,8 @@ from django.urls import path, re_path
 from graphene_django.views import GraphQLView
 from rest_framework.routers import DefaultRouter
 
-from backend.utils.admin import admin_site
-from backend.utils.views import healthz
+from {{cookiecutter.ci_project_name}}.utils.admin import admin_site
+from {{cookiecutter.ci_project_name}}.utils.views import healthz
 
 # Unused
 api_router = DefaultRouter(trailing_slash=True)

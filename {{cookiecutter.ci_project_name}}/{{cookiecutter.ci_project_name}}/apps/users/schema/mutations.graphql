@@ -1,0 +1,16 @@
+mutation tokenAuth($username_Iexact: String!, $password: String!) {
+    tokenAuth(username_Iexact: $username_Iexact, password: $password) {
+        token
+        success
+        errors
+        refreshToken
+    }
+}
+mutation refreshToken($refreshToken: String!) {
+    refreshToken(refreshToken: $refreshToken) {
+        token
+        success
+        errors
+        refreshToken
+    }
+}

@@ -1,21 +1,13 @@
 import React, {FC} from "react";
 import Head from "next/head";
 import {GetServerSideProps} from "next";
-import {property, range} from "lodash";
-
-import {HomeNavbarLayout} from "../layouts/HomeNavbarLayout";
 import {
   MyProfileDocument,
-  PropertyListingFragment,
-  useGetPropertiesQuery,
 } from "../generated/graphql";
 import {initializeApollo} from "../lib/apollo-client";
 import Container from "@mui/material/Container";
 
 export default function Home() {
-  const {data} = useGetPropertiesQuery({variables: {limit: 5}});
-
-  const propertyList = data?.getProperties;
 
   return (
     <>

@@ -50,7 +50,7 @@ test:
 	bin/dj pytest
 
 test_backend_coverage:
-	pytest --cov=backend/apps --cov-config=.coveragerc --cov-report html --cov-report term
+	pytest --cov={{cookiecutter.ci_project_name}}/apps --cov-config=.coveragerc --cov-report html --cov-report term
 	echo "View coverage report: file://${PWD}/htmlcov/index.html"
 
 
@@ -74,16 +74,16 @@ mypy:
 	bin/dj mypy
 
 isort:
-	pipenv run isort backend
+	pipenv run isort {{cookiecutter.ci_project_name}}
 
 flake8:
 	pipenv run flake8
 
 autoflake:
-	pipenv run autoflake -r -i --expand-star-imports --remove-all-unused-imports --remove-duplicate-keys --remove-unused-variables --ignore-init-module-imports backend/apps/
+	pipenv run autoflake -r -i --expand-star-imports --remove-all-unused-imports --remove-duplicate-keys --remove-unused-variables --ignore-init-module-imports {{cookiecutter.ci_project_name}}/apps/
 
 black:
-	pipenv run black backend wsgi.py manage.py
+	pipenv run black {{cookiecutter.ci_project_name}} wsgi.py manage.py
 
 lint:
-	pipenv run black --check backend wsgi.py manage.py
+	pipenv run black --check {{cookiecutter.ci_project_name}} wsgi.py manage.py

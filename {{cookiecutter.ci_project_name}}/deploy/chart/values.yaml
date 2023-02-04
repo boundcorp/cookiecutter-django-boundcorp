@@ -7,7 +7,7 @@ replicas:
 priorityClassName:
 
 image:
-  repository: registry.gitlab.com/{{cookiecutter.ci_project_name}}/{{cookiecutter.ci_project_name}}
+  repository: registry.gitlab.com/{{cookiecutter.ci_project_path}}/{{cookiecutter.ci_project_name}}
   tag: latest
   pullPolicy: IfNotPresent
   pullSecrets:
@@ -24,66 +24,26 @@ ingress:
   ingressClassName: ""
   annotations: {}
   labels: {}
-  hostname: {{cookiecutter.ci_project_name}}.com
+  hostname: {{cookiecutter.production_hostname}}
   tls:
-    - hosts: []
-      secretName: ""
-
-  {{cookiecutter.ci_project_name}}:
-  # -- Log level for server and worker
-  log_level: info
-  # -- Secret key used for cookie singing and unique user IDs,
-  # don't change this after the first install
-  secret_key: ""
-  email:
-    # -- SMTP Server notifications are sent from, fully optional
-    host: ""
-    port: 587
-    # -- SMTP credentials, when left empty, not authentication will be done
-    username: ""
-    # -- SMTP credentials, when left empty, not authentication will be done
-    password: ""
-    # -- Enable either use_tls or use_ssl, they can't be enabled at the same time.
-    use_tls: false
-    # -- Enable either use_tls or use_ssl, they can't be enabled at the same time.
-    use_ssl: false
-    # -- Connection timeout
-    timeout: 30
-    # -- Email from address, can either be in the format "foo@bar.baz" or "authentik <foo@bar.baz>"
-    from: ""
-  postgresql:
-    # -- set the postgresql hostname to talk to
-    # if unset and .Values.postgresql.enabled == true, will generate the default
-    host: '{{cookiecutter.ci_project_name}}-postgresql'
-    # -- postgresql Database name
-    name: "{{cookiecutter.ci_project_name}}"
-    # -- postgresql Username
-    user: "{{cookiecutter.ci_project_name}}"
-    password: ""
-    port: 5432
-    s3_backup:
-      # -- optional S3 backup, access key
-      access_key: ""
-      # -- optional S3 backup, secret key
-      secret_key: ""
-      # -- optional S3 backup, bucket
-      bucket: ""
-      # -- optional S3 backup, region
-      region: ""
-      # -- optional S3 backup, host, including protocol (https://minio.domain.tld)
-      host: ""
-      # -- optional S3 backup, location in the bucket
-      # @default -- `"/"`
-      location: ""
-      # -- optional S3 backup, set to `true` to disable SSL certificate verification
-      insecure_skip_verify: false
-  redis:
-    # -- set the redis hostname to talk to
-    host: '{{cookiecutter.ci_project_name}}-redis-master'
-    password: ""
+    - hosts: ["{{cookiecutter.production_hostname}}"]
+      secretName: "{{cookiecutter.ci_project_name}}-tls"
 
 env:
-  APP_HOSTNAME: {{cookiecutter.ci_project_name}}.com
+  APP_HOSTNAME: {{cookiecutter.production_hostname}}
+  DATABASE_URL: postgresql://{{cookiecutter.ci_project_name}}:{{cookiecutter.ci_project_name}}@{{cookiecutter.ci_project_name}}-postgresql:5432/{{cookiecutter.ci_project_name}}
+  # -- Secret key used for cookie singing and unique user IDs,
+  # don't change this after the first install
+  SECRET_KEY: ""
+  MINIO_STORAGE_ENDPOINT: {{cookiecutter.ci_project_name}}-minio:9000
+  MINIO_STORAGE_ACCESS_KEY: {{cookiecutter.ci_project_name}}
+  MINIO_STORAGE_SECRET_KEY: {{cookiecutter.ci_project_name}}-secret
+  MINIO_STORAGE_MEDIA_BUCKET_NAME: assets
+  MINIO_STORAGE_USE_HTTPS: false
+  MINIO_STORAGE_AUTO_CREATE_MEDIA_BUCKET: true
+  MINIO_STORAGE_MEDIA_URL: "https://{{cookiecutter.production_hostname}}/assets"
+  MINIO_STORAGE_MEDIA_USE_PRESIGNED: true
+
 
 envFrom: []
 #  - configMapRef:
@@ -125,7 +85,7 @@ resources:
 
 livenessProbe:
   # -- enables or disables the livenessProbe
-  enabled: false
+  enabled: true
   httpGet:
     path: /healthz/
     port: http
@@ -133,7 +93,7 @@ livenessProbe:
   periodSeconds: 10
 
 readinessProbe:
-  enabled: false
+  enabled: true
   httpGet:
     path: /healthz/
     port: http
@@ -154,12 +114,21 @@ prometheus:
 
 postgresql:
   # -- enable the bundled bitnami postgresql chart
-  enabled: false
-  postgresqlUsername: "{{cookiecutter.ci_project_name}}"
-  # postgresqlPassword: ""
-  postgresqlDatabase: "{{cookiecutter.ci_project_name}}"
-  persistence:
-    enabled: true
-  #   storageClass:
-  #   accessModes:
-  #     - ReadWriteOnce
+  enabled: true
+  global:
+    postgresql:
+      auth:
+        postgresPassword: "{{cookiecutter.ci_project_name}}"
+        username: "{{cookiecutter.ci_project_name}}"
+        password: "{{cookiecutter.ci_project_name}}"
+        database: "{{cookiecutter.ci_project_name}}"
+
+minio:
+  # -- enable the bundled bitnami minio chart
+  enabled: true
+  rootUser: "{{cookiecutter.ci_project_name}}"
+  rootPassword: "{{cookiecutter.ci_project_name}}-secret"
+  mode: standalone
+  replicas: 1
+  buckets:
+    - name: assets

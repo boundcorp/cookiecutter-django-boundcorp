@@ -1,9 +1,9 @@
 import graphene
 from graphql_jwt.decorators import login_required
 
-from backend.apps.users import filters as f
-from backend.apps.users.schema import types
-from backend.utils.graphql import FilterInput, define_model_list_query, define_query
+from {{cookiecutter.ci_project_name}}.apps.users import filters as f
+from {{cookiecutter.ci_project_name}}.apps.users.schema import types
+from {{cookiecutter.ci_project_name}}.utils.graphql import FilterInput, define_model_list_query, define_query
 
 
 class Queries(object):

@@ -1,11 +1,11 @@
 [coverage:run]
-source = backend/apps
+source = {{cookiecutter.ci_project_name}}/apps
 branch = True
 
 omit =
-  backend/apps/*/migrations/*
-  backend/apps/common/*
-  backend/apps/utils/*
+  {{cookiecutter.ci_project_name}}/apps/*/migrations/*
+  {{cookiecutter.ci_project_name}}/apps/common/*
+  {{cookiecutter.ci_project_name}}/apps/utils/*
   */__init__.py
   */factories.py
   */admin.py

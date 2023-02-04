@@ -5,10 +5,10 @@ import sys
 if "TEST_USE_ENV" not in os.environ:
     # Let's reset ENV variables values for testing
 
-    del sys.modules["backend.settings"]
-    del sys.modules["backend.settings.project"]
+    del sys.modules["{{cookiecutter.ci_project_name}}.settings"]
+    del sys.modules["{{cookiecutter.ci_project_name}}.settings.project"]
 
-from backend.settings import *
+from {{cookiecutter.ci_project_name}}.settings import *
 
 SECRET_KEY = "Test Only Key"
 
@@ -29,7 +29,7 @@ DATABASES["default"] = {
 print("TEST MODE: Use fast MD5PasswordHasher")
 PASSWORD_HASHERS = ("django.contrib.auth.hashers.MD5PasswordHasher",)
 
-EMAIL_BACKEND = "backend.conf.test_settings.MockEmailBackend"
+EMAIL_BACKEND = "{{cookiecutter.ci_project_name}}.conf.test_settings.MockEmailBackend"
 
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 

@@ -57,10 +57,16 @@ test_backend:
     #- gcloud auth activate-service-account --key-file $GCP_SERVICE_KEY
     #- gcloud container clusters get-credentials {{cookiecutter.ci_project_name}} --zone=us-west2-a --project=$GCP_PROJECT_ID
 
+
+    # Or use these lines with the deploy/cluster/install_ci_serviceaccount.sh script
+    # to create a service account and store the connection file in the repo with git-crypt
+    - export KUBECONFIG=$PWD/kubeconfig-sa.$ENV.secrets.yaml
+    - chmod 0600 $KUBECONFIG
+
     - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
     - helm dependency update ./deploy/chart/
   script:
-    - bin/gke.deploy "${CI_COMMIT_SHA}" "${ENV}" $PWD/helm-values.${ENV}.secrets.yaml
+    - bin/helm-deploy "${CI_COMMIT_SHA}" "${ENV}" $PWD/helm-values.${ENV}.secrets.yaml
 
 
 deploy_staging:

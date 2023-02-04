@@ -23,10 +23,10 @@ from django.contrib.admin import AdminSite
 
 class CustomAdmin(AdminSite):
     # Text to put at the end of each page's <title>.
-    site_title = "JustPosted"
+    site_title = "{{cookiecutter.ci_project_name}}"
 
     # Text to put in each page's <h1> (and above login form).
-    site_header = "JustPosted"
+    site_header = "{{cookiecutter.ci_project_name}}"
 
 
 admin_site = CustomAdmin()
