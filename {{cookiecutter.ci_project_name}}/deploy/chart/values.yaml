@@ -100,10 +100,6 @@ readinessProbe:
   initialDelaySeconds: 10
   periodSeconds: 5
 
-serviceAccount:
-  # -- Service account is needed for managed outposts
-  create: true
-
 prometheus:
   serviceMonitor:
     create: false

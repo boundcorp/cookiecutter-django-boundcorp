@@ -37,6 +37,9 @@ frontend_dev:
 pip:
 	pipenv install
 	pipenv lock
+	make pip_freeze
+
+pip_freeze:
 	pipenv run pip3 freeze > requirements.freeze.txt
 
 precommit:
