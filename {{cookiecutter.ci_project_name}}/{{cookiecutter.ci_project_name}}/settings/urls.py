@@ -3,6 +3,7 @@ from django.conf import settings
 from django.conf.urls import include
 from django.conf.urls.static import static
 from django.urls import path, re_path
+from graphql_jwt.decorators import jwt_cookie
 from graphene_django.views import GraphQLView
 from rest_framework.routers import DefaultRouter
 
@@ -20,8 +21,8 @@ urlpatterns = [
     path("healthz/", healthz),
     path(
         "api/graphql/",
-        GraphQLView.as_view(
+        jwt_cookie(GraphQLView.as_view(
             graphiql=True,
-        ),
+        )),
     ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

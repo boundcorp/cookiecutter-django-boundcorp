@@ -5,7 +5,6 @@ export PIPENV_VERBOSITY=-1
 develop:
 	bin/setup.dev -y
 	bin/dc up -d
-	cd frontend && yarn start
 
 deps:
 	make pip

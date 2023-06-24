@@ -2,7 +2,11 @@ import re
 from typing import Union
 
 import graphene
-from graphene_validator.errors import SingleValidationError
+from django.forms import NullBooleanField
+from django_filters import filters
+
+from {{cookicutter.ci_project_name}}.utils.graphql.errors import Error
+from {{cookicutter.ci_project_name}}.utils.graphql.validator.errors import SingleValidationError
 
 
 def define_model_list_query(return_type: graphene.Field, **arguments):
@@ -59,29 +63,6 @@ def FilterInput(fs):
     )
 
 
-class IError(graphene.Interface):
-    message = graphene.String(required=True)
-
-
-class IFieldError(graphene.Interface):
-    field = graphene.String(required=True)
-
-
-class Error(graphene.ObjectType):
-    message = graphene.String(required=True)
-
-    class Meta:
-        implements = (IError,)
-
-
-class FieldError(graphene.ObjectType):
-    message = graphene.String(required=True)
-    field = graphene.String(required=True)
-
-    class Meta:
-        implements = (IFieldError,)
-
-
 def union_type(type_name, *union_types):
     class ResultUnion(graphene.Union):
         class Meta:
@@ -94,10 +75,10 @@ def union_type(type_name, *union_types):
 def success_or_error(cls, *error_types, name=None):
     if not name:
         success_name = cls.__name__
-        if not success_name.endswith("Success") or not issubclass(cls, graphene.ObjectType):
-            raise NameError(
-                "You can only use the success_or_errors helper with an ObjectType that's name ends with Success"
-            )
+        if not issubclass(cls, graphene.ObjectType):
+            raise NameError(f"{success_name} can only use the success_or_errors helper with type graphene.ObjectType")
+        if not success_name.endswith("Success"):
+            raise NameError(f"{success_name} can only use the success_or_errors helper when name ends with Success")
         name = success_name[:-7]
         if not name.endswith("Result"):
             name += "Result"
@@ -107,3 +88,35 @@ def success_or_error(cls, *error_types, name=None):
     ]
 
     return union_type(name, cls, *types)
+
+
+class ArchivedYesNoFormField(NullBooleanField):
+    """
+    ArchivedYesNoFilter swaps the boolean value and passes to "isnull" filter
+    e.g. archived=true means archived_at__isnull=false
+    """
+
+    def clean(self, value):
+        if value is False or value is None:
+            return True
+        if value is True:
+            return False
+        return super(ArchivedYesNoFormField, self).clean(value)
+
+
+class ArchivedYesNoFilter(filters.BooleanFilter):
+    """
+    ArchivedYesNoFilter swaps the boolean value and passes to "isnull" filter
+    e.g. archived=true means archived_at__isnull=false
+    """
+
+    field_class = ArchivedYesNoFormField
+
+
+class FileBase64UploadInput(graphene.InputObjectType):
+    file_data = graphene.String(required=True)
+    file_name = graphene.String(required=True)
+
+
+class IDInput(graphene.InputObjectType):
+    id = graphene.ID(required=True)

@@ -1,0 +1,172 @@
+mutation tokenAuth($username_Iexact: String!, $password: String!) {
+    tokenAuth(username_Iexact: $username_Iexact, password: $password) {
+        __typename
+        ... on TokenAuthSuccess {
+            token
+            refreshToken
+        }
+        ... on Error {
+            message
+        }
+    }
+}
+mutation sendPasswordResetEmail($email: String!) {
+    sendPasswordResetEmail(email: $email) {
+        __typename
+        ... on SendPasswordResetEmailSuccess {
+            success
+        }
+        ... on Error {
+            message
+        }
+    }
+}
+
+mutation passwordReset(
+    $token: String!
+    $newPassword1: String!
+    $newPassword2: String!
+) {
+    passwordReset(
+        token: $token
+        newPassword1: $newPassword1
+        newPassword2: $newPassword2
+    ) {
+        __typename
+        ... on PasswordResetSuccess {
+            success
+        }
+        ... on Error {
+            message
+        }
+    }
+}
+mutation logout {
+    logout {
+        __typename
+        ... on LogoutSuccess {
+            success
+        }
+        ... on Error {
+            message
+        }
+    }
+}
+
+mutation registerBusiness($input: RegisterBusinessInput) {
+    registerBusiness(input: $input) {
+        __typename
+        ... on RegisterBusinessSuccess {
+            user {
+                ...UserProfile
+            }
+            business {
+                ...BusinessPrivateDetails
+            }
+        }
+        ... on Error {
+            message
+        }
+    }
+}
+
+mutation createClient($input: CreateClientInput!) {
+    createClient(input: $input) {
+        __typename
+        ... on CreateClientSuccess {
+            client {
+                ...ClientDetails
+            }
+        }
+        ... on Error {
+            message
+        }
+    }
+}
+
+mutation createBusinessUser($input: CreateBusinessUserInput!) {
+    createBusinessUser(input: $input) {
+        __typename
+        ... on CreateBusinessUserSuccess {
+            user {
+                ...BusinessUserDetails
+            }
+        }
+        ... on Error {
+            message
+        }
+    }
+}
+
+mutation paypalMerchantSignup {
+    paypalMerchantSignup {
+        __typename
+        ... on PaypalMerchantSignupSuccess {
+            onboardingUrl
+        }
+        ... on Error {
+            message
+        }
+    }
+}
+mutation paypalMerchantOnboarded($input: PaypalMerchantOnboardedInput!) {
+    paypalMerchantOnboarded(input: $input) {
+        __typename
+        ... on PaypalMerchantOnboardedSuccess {
+            success
+            merchantId
+        }
+        ... on Error {
+            message
+        }
+    }
+}
+
+mutation editBusiness($input: EditBusinessInput!) {
+    editBusiness(input: $input) {
+        __typename
+        ... on EditBusinessSuccess {
+            business {
+                ...BusinessPrivateDetails
+            }
+        }
+        ... on Error {
+            message
+        }
+    }
+}
+mutation editClient($input: EditClientInput) {
+    editClient(input: $input) {
+        __typename
+        ... on EditClientSuccess {
+            client {
+                ...ClientDetails
+            }
+        }
+        ... on Error {
+            message
+        }
+    }
+
+}
+
+
+mutation updateUserProfile($input: UpdateUserProfileInput) {
+    updateUserProfile(input: $input) {
+        __typename
+        ... on UpdateUserProfileSuccess {
+            user {
+                ...UserProfile
+            }
+        }
+        ... on Error {
+            message
+        }
+    }
+}
+
+mutation getBillingPortalUrl {
+    getBillingPortalUrl {
+        url
+    }
+}

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+cd "${scriptDir}/.." || exit 1
+[[ -z "$SOPS_AGE_KEY_FILE" ]] && echo "You need a SOPS_AGE_KEY_FILE to decrypt the secrets" && exit 1
+
+exec 3<<< "$(cat $1)"
+export EXT=binary
+sops --decrypt --input-type $EXT --output-type $EXT /dev/fd/3

@@ -6,12 +6,6 @@ from {{cookiecutter.ci_project_name}}.apps.users import models
 
 
 class UserProfile(DjangoObjectType):
-    verified = graphene.Boolean()
-
-    def resolve_verified(parent, info):
-        return UserStatus.objects.get(user_id=parent.id).verified
-
-
     class Meta:
         model = models.User
         fields = [

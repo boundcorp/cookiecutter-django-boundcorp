@@ -23,6 +23,7 @@ env = environ.Env(
 )  # set default values and casting
 ENVIRONMENT = os.environ.get("APP_ENV", Environments.DEVELOPMENT).lower()
 BACKEND_PORT = int(os.environ.get("DEVELOP_BACKEND_PORT", 8000))
+INGRESS_PORT = int(os.environ.get("DEVELOP_INGRESS_PORT", 8888))
 DEBUG = os.environ.get("DEBUG", "") == "true"
 ROOT_URLCONF = "{{cookiecutter.ci_project_name}}.settings.urls"
 
@@ -37,14 +38,19 @@ DATABASE_NAME = os.environ.get("DATABASE_NAME", "{{cookiecutter.ci_project_name}
 DATABASE_USER = os.environ.get("DATABASE_USER", "{{cookiecutter.ci_project_name}}")
 DATABASE_PORT = os.environ.get("DATABASE_PORT", "5432")
 DATABASE_PASSWORD = os.environ.get("DATABASE_PASSWORD", "{{cookiecutter.ci_project_name}}")
-
 DATABASES = {
-    "default": env.db(
-        "DATABASE_URL",
-        default=f"psql://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_NAME}",
-        # To enable postgis engine:
-        # engine="django.contrib.gis.db.backends.postgis",
-    ),
+    # To enable postgis engine:
+    # engine="django.contrib.gis.db.backends.postgis",
+    "default": DATABASE_HOST
+    and {
+        "ENGINE": "django.db.backends.postgresql",
+        "USER": DATABASE_USER,
+        "NAME": DATABASE_NAME,
+        "PASSWORD": DATABASE_PASSWORD,
+        "HOST": DATABASE_HOST,
+        "PORT": DATABASE_PORT,
+    }
+    or env.db("DATABASE_URL", default="")
 }
 
 MANAGERS = ADMINS = [
@@ -57,7 +63,8 @@ SERVER_EMAIL = os.environ.get("SERVER_EMAIL", "noreply@" + APP_HOSTNAME)
 DEFAULT_FROM_EMAIL = SERVER_EMAIL
 
 AUTH_USER_MODEL = "users.User"
-AUTHENTICATION_BACKENDS = ["graphql_auth.backends.GraphQLAuthBackend", "django.contrib.auth.backends.ModelBackend"]
+AUTHENTICATION_BACKENDS = ["{{cookiecutter.ci_project_name}}.utils.graphql.auth.GraphQLAuthBackend",
+                           "django.contrib.auth.backends.ModelBackend"]
 
 INSTALLED_APPS = [
     "django.contrib.auth",
@@ -269,7 +276,8 @@ else:
     MINIO_STORAGE_ENDPOINT = os.environ.get("MINIO_STORAGE_ENDPOINT", "minio:9000")
     MINIO_STORAGE_ACCESS_KEY = os.environ.get("MINIO_STORAGE_ACCESS_KEY", "dev")
     MINIO_STORAGE_SECRET_KEY = os.environ.get("MINIO_STORAGE_SECRET_KEY", "test1234")
-    MINIO_STORAGE_MEDIA_BUCKET_NAME = os.environ.get("MINIO_STORAGE_MEDIA_BUCKET_NAME", "{{cookiecutter.ci_project_name}}-assets")
+    MINIO_STORAGE_MEDIA_BUCKET_NAME = os.environ.get("MINIO_STORAGE_MEDIA_BUCKET_NAME",
+                                                     "{{cookiecutter.ci_project_name}}-assets")
     MINIO_STORAGE_USE_HTTPS = env_variable_truthy("MINIO_STORAGE_USE_HTTPS")
     MINIO_STORAGE_AUTO_CREATE_MEDIA_BUCKET = True
     MINIO_STORAGE_MEDIA_URL = os.environ.get(
@@ -296,7 +304,7 @@ if not DEBUG:
 else:
     # DEV SETTINGS
     PROTOCOL = "http"
-    FRONTEND_PORT = 3000
+    FRONTEND_PORT = INGRESS_PORT
     APP_HOSTNAME = "localhost"
     BASE_URL = f"{PROTOCOL}://localhost:{FRONTEND_PORT}"
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
@@ -309,34 +317,6 @@ GRAPHQL_JWT = {
     "JWT_LONG_RUNNING_REFRESH_TOKEN": True,
     "JWT_EXPIRATION_DELTA": timedelta(hours=1),
     "JWT_REFRESH_EXPIRATION_DELTA": timedelta(days=7),
-    "JWT_ALLOW_ANY_CLASSES": [
-        "graphql_auth.mutations.Register",
-        "graphql_auth.mutations.VerifyAccount",
-        "graphql_auth.mutations.ResendActivationEmail",
-        "graphql_auth.mutations.SendPasswordResetEmail",
-        "graphql_auth.mutations.PasswordReset",
-        "graphql_auth.mutations.ObtainJSONWebToken",
-        "graphql_auth.mutations.VerifyToken",
-        "graphql_auth.mutations.RefreshToken",
-        "graphql_auth.mutations.RevokeToken",
-        "graphql_auth.mutations.VerifySecondaryEmail",
-    ],
-}
-
-GRAPHQL_AUTH = {
-    "EMAIL_TEMPLATE_VARIABLES": {
-        "site_name": "{{cookiecutter.ci_project_name}}}}",
-        "protocol": PROTOCOL,
-        "domain": APP_HOSTNAME + (FRONTEND_PORT != 80 and f":{FRONTEND_PORT}" or ""),
-    },
-    "LOGIN_ALLOWED_FIELDS": ["email__iexact", "username__iexact"],
-    "REGISTER_MUTATION_FIELDS": [
-        "email",
-        "username",
-        "first_name",
-        "last_name",
-    ],
-    "REGISTER_MUTATION_OPTIONAL_FIELDS": [],
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
@@ -349,6 +329,7 @@ Q_CLUSTER = {
     "queue_limit": 50,
     "bulk": 10,
     "orm": "default",
+    "catch_up": False,
 }
 
 if "SENTRY_BACKEND_URL" in os.environ:

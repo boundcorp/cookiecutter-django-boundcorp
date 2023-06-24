@@ -1,0 +1,10 @@
+#!/bin/bash
+
+scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+cd "${scriptDir}/.." || exit 1
+set -e
+
+export SOPS_AGE_RECIPIENTS=$(bin/sops-pubkeys)
+exec 3<<< "$(cat $1)"
+export EXT=binary
+sops --encrypt --input-type $EXT --output-type $EXT --age ${SOPS_AGE_RECIPIENTS} /dev/fd/3

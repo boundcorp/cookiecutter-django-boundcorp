@@ -89,6 +89,7 @@ RUN mkdir -p /app/frontend
 WORKDIR /app
 RUN mkdir -p /app/static/uploads && chmod 777 /app/static/uploads
 RUN python manage.py collectstatic --noinput
+ENV PYTHONSTARTUP=/.pythonrc
 
 ENTRYPOINT ["/entrypoint.sh"]
 
@@ -142,10 +143,11 @@ FROM ${image_version} as dev
 
 ENV LANG C.UTF-8
 ENV PYTHONUNBUFFERED 1
+ENV PYTHONSTARTUP=/.pythonrc
 
 RUN apt update -yq && apt install -yq \
     netcat gcc python3-dev libpq-dev libxml2-dev libxslt-dev \
-    libcurl4-openssl-dev libssl-dev libffi-dev
+    libcurl4-openssl-dev libssl-dev libffi-dev curl
 
 RUN pip install --no-cache-dir --upgrade pipenv pip \
     && mkdir /app
@@ -160,7 +162,7 @@ ADD Pipfile Pipfile.lock /app/
 # In dev, pipfile is installed with --system, so it persists even if we mount /app from outside
 RUN pipenv install --dev --system
 
-ENV NODE_VERSION=16.13.0
+ENV NODE_VERSION=16.14.0
 RUN apt install -y curl
 ENV NVM_DIR=/nvm
 RUN mkdir -p $NVM_DIR

@@ -25,6 +25,10 @@ services:
     command: minio server /data --console-address ":9001"
     volumes:
       - /data/${CI_PROJECT_NAME}/minio:/data
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
 
   django_shell: # This is a one-shot command runner service, for manage.py or bash, it dies immediately
     extends:
@@ -32,8 +36,8 @@ services:
       file: build.yml
     volumes:
       - ../:/app
-      - ../.pythonrc:/root/.pythonrc
-      - ../.pythonhist:/root/.pythonhist
+      - ../.pythonrc:/.pythonrc
+      - ../.pythonhist:/.pythonhist
     user: "${UID_GID}"
     links:
       - psql
@@ -41,6 +45,7 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE
       - DEVELOP_BACKEND_PORT
+      - DEVELOP_INGRESS_PORT
       - DATABASE_URL=psql://${CI_PROJECT_NAME}:${CI_PROJECT_NAME}@psql:5432/${CI_PROJECT_NAME}
       - ENV
       - SECRET_KEY=develop_key
@@ -49,13 +54,24 @@ services:
     command: "bash"
     entrypoint: []
 
+  ingress:
+    image: caddy:2.0.0-alpine
+    ports:
+      - ${DEVELOP_INGRESS_PORT}:80
+    links:
+      - backend
+      - frontend
+      - minio
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+
   backend:
     extends:
       service: ${CI_PROJECT_NAME}-django-dev
       file: build.yml
     command: ["/entrypoint.sh", "python", "manage.py", "runserver", "0.0.0.0:8000"]
     ports:
-      - "$DEVELOP_BACKEND_PORT:8000"
+      - "${DEVELOP_BACKEND_PORT}:8000"
     links:
       - psql
       - minio
@@ -65,7 +81,12 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE
       - DEVELOP_BACKEND_PORT
+      - DEVELOP_INGRESS_PORT
       - DATABASE_URL=psql://${CI_PROJECT_NAME}:${CI_PROJECT_NAME}@psql:5432/${CI_PROJECT_NAME}
+      - PAYPAL_PLATFORM_CLIENT_ID
+      - PAYPAL_PLATFORM_SECRET_KEY
+      - STAGING_STRIPE_PUBLIC_KEY
+      - STAGING_STRIPE_SECRET_KEY
       - ENV
       - SECRET_KEY=develop_key
       - DEBUG=true
@@ -85,7 +106,12 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE
       - DEVELOP_BACKEND_PORT
+      - DEVELOP_INGRESS_PORT
       - DATABASE_URL=psql://${CI_PROJECT_NAME}:${CI_PROJECT_NAME}@psql:5432/${CI_PROJECT_NAME}
+      - PAYPAL_PLATFORM_CLIENT_ID
+      - PAYPAL_PLATFORM_SECRET_KEY
+      - STAGING_STRIPE_PUBLIC_KEY
+      - STAGING_STRIPE_SECRET_KEY
       - ENV
       - SECRET_KEY=develop_key
       - DEBUG=true
@@ -99,7 +125,7 @@ services:
     entrypoint: []
     working_dir: /app/frontend
     ports:
-      - "$DEVELOP_FRONTEND_PORT:3000"
+      - "${DEVELOP_FRONTEND_PORT}:3000"
     links:
       - psql
       - minio
@@ -108,9 +134,11 @@ services:
     user: "${UID_GID}"
     environment:
       - DEVELOP_BACKEND_PORT
+      - DEVELOP_INGRESS_PORT
       - DEVELOP_FRONTEND_PORT
-      - APOLLO_BACKEND_URI=http://backend:8000/api/graphql/
-      - NEXT_PUBLIC_APOLLO_URI=http://localhost:$DEVELOP_BACKEND_PORT/api/graphql/
+      - APOLLO_BACKEND_URI=http://ingress:80/api/graphql/
+      - NEXT_PUBLIC_APOLLO_URI=http://localhost:${DEVELOP_INGRESS_PORT}/api/graphql/
+      - PAYPAL_PLATFORM_CLIENT_ID
       - ENV
       - DEBUG=true
       - SERVICE=backend

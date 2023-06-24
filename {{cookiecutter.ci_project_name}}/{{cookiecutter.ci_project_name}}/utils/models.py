@@ -15,6 +15,10 @@ def _generate_medium_id():
     return "".join(str(uuid.uuid4()).split("-")[1:4])
 
 
+def _generate_full_uuid():
+    return str(uuid.uuid4())
+
+
 class ShortIdMixin(models.Model):
     id = models.CharField(max_length=32, primary_key=True, default=_generate_id, editable=False)
 
@@ -23,7 +27,7 @@ class ShortIdMixin(models.Model):
 
 
 class MediumIDMixin(models.Model):
-    id = models.CharField(max_length=32, primary_key=True, default=_generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=_generate_medium_id, editable=False)
 
     class Meta:
         abstract = True
@@ -43,6 +47,21 @@ class TimestampMixin(models.Model):
     class Meta:
         abstract = True
         ordering = ("-updated_at", "-created_at")
+
+
+class ArchivedMixin(models.Model):
+    archived_at = models.DateTimeField(null=True, blank=True, db_index=True)
+
+    class Meta:
+        abstract = True
+
+
+def unarchived(qs):
+    return qs.filter(archived_at__isnull=True)
+
+
+def archived(qs):
+    return qs.filter(archived_at__isnull=False)
 
 
 class ModelDiffMixin(object):
@@ -89,7 +108,7 @@ class ModelDiffMixin(object):
 
 
 def from_choices(c):
-    return {"choices": c.choices, "max_length": max([len(x) for x in c]), "default": c.choices[0]}
+    return {"choices": c.choices, "max_length": max([len(x) for x in c]), "default": c.choices[0][0]}
 
 
 def format_cents(c):
@@ -107,3 +126,17 @@ def get_client_ip(META):
 
 def uuid4_string():
     return str(uuid.uuid4())
+
+
+def get_input_fields(cls, input, exclude=None):
+    exclude = exclude or []
+    fields = [getattr(f, "attname", f.name) for f in cls._meta.get_fields()]
+    return {k: v for k, v in input.items() if k not in exclude and k in fields}
+
+
+def sizeof_fmt(num, suffix="B"):
+    for unit in ["", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"]:
+        if abs(num) < 1024.0:
+            return f"{num:3.1f}{unit}{suffix}"
+        num /= 1024.0
+    return f"{num:.1f}Yi{suffix}"

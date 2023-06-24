@@ -18,7 +18,6 @@ export default function App({Component, pageProps}: AppProps) {
     <ApolloProvider client={apolloClient}>
       <ThemeContextProvider>
           <SnackbarProvider maxSnack={3}>
-
             <ProfileProvider>
               <CssBaseline/>
               <Component {...pageProps} />
