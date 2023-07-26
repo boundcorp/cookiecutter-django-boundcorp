@@ -10,8 +10,9 @@ cookiecutter . --no-input \
   author="Leeward Bound" \
   email=leeward@boundcorp.net \
   production_hostname=$NAME.boundcorp.net \
-  development_backend_port=8844 \
-  development_frontend_port=4488
+  development_backend_port=8811 \
+  development_ingress_port=1118 \
+  development_frontend_port=1188
 
 echo "Created template in $NAME/"
 pushd $NAME

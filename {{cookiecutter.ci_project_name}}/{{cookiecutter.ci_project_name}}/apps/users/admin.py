@@ -1,8 +1,5 @@
 from django.contrib.auth.admin import UserAdmin
-from
-
-{{cookiecutter.ci_project_name}}.utils.admin
-import register
+from {{cookiecutter.ci_project_name}}.utils.admin import register
 
 from . import models
 

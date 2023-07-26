@@ -3,6 +3,7 @@
     "ci_project_path": "",
     "development_backend_port": "8822",
     "development_frontend_port": "2288",
+    "development_ingress_port": "2228",
     "production_hostname": "",
     "author": "",
     "email": "",

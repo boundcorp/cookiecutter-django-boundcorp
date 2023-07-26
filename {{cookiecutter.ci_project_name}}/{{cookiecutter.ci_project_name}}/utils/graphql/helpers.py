@@ -5,8 +5,8 @@ import graphene
 from django.forms import NullBooleanField
 from django_filters import filters
 
-from {{cookicutter.ci_project_name}}.utils.graphql.errors import Error
-from {{cookicutter.ci_project_name}}.utils.graphql.validator.errors import SingleValidationError
+from {{cookiecutter.ci_project_name}}.utils.graphql.errors import Error
+from {{cookiecutter.ci_project_name}}.utils.graphql.validator.errors import SingleValidationError
 
 
 def define_model_list_query(return_type: graphene.Field, **arguments):

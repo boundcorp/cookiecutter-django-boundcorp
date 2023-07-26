@@ -24,7 +24,7 @@ class User(TimestampMixin, MediumIDMixin, AbstractUser, MailMixin):
     def send_password_reset_email(self, invitation=False):
         token = self.get_jwt_token("password_reset")
         reset_url = f"auth/password-reset/{token}"
-        title = "{{cookiecutter.project_name}}"
+        title = "{{cookiecutter.ci_project_name}}"
         subject = f"{title}: {invitation and 'Account Invitation' or 'Password Reset'}"
         self.send_action_button_mail(
             subject,
