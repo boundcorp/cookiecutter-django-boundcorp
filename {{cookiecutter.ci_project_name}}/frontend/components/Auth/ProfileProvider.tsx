@@ -2,7 +2,7 @@ import {createContext, FC, PropsWithChildren, useCallback, useContext, useEffect
 import {
     UserProfileFragment,
     useMyProfileQuery,
-    useRefreshTokenMutation, useMyProfileLazyQuery
+    useMyProfileLazyQuery
 } from "../../generated/graphql";
 import {
     clearAuthAndLogout,
@@ -24,7 +24,6 @@ export const ProfileContext = createContext<ProfileContextValues>({loading: true
 export const ProfileProvider: FC<PropsWithChildren> = ({children}) => {
     const query = useMyProfileQuery();
     const profile = query.data?.myProfile?.id ? query.data.myProfile : null
-    const [refresh] = useRefreshTokenMutation()
     const [status, setStatus] = useState<TokenStatus>(tokenStatus())
 
     const checkTokenRefresh = useCallback(() => {
@@ -32,10 +31,10 @@ export const ProfileProvider: FC<PropsWithChildren> = ({children}) => {
         async function doTokenRefresh() {
             console.info("Refreshing token...")
             try {
-                const result = await refresh({variables: {refreshToken: getRefreshToken()}})
-                const newToken = result.data?.refreshToken
-                if (newToken?.token)
-                    setAuthToken(newToken.token, newToken.refreshToken || "")
+                //const result = await refresh({variables: {refreshToken: getRefreshToken()}})
+                //const newToken = result.data?.refreshToken
+                //if (newToken?.token)
+                //setAuthToken(newToken.token, newToken.refreshToken || "")
                 await query.refetch()
                 setStatus(tokenStatus())
             } catch (e) {
@@ -57,7 +56,7 @@ export const ProfileProvider: FC<PropsWithChildren> = ({children}) => {
             console.debug("Token valid")
         }
 
-    }, [fetch, refresh, status])
+    }, [fetch, status])
 
     useEffect(checkTokenRefresh, [checkTokenRefresh])
     useEffect(() => {

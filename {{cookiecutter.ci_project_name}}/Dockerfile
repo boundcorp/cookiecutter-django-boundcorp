@@ -1,5 +1,5 @@
 ARG image_version=python:3.10.9
-ARG node_image=node:14.21.1
+ARG node_image=node:18.17.1
 
 #
 #
@@ -162,15 +162,15 @@ ADD Pipfile Pipfile.lock /app/
 # In dev, pipfile is installed with --system, so it persists even if we mount /app from outside
 RUN pipenv install --dev --system
 
-ENV NODE_VERSION=16.14.0
+ENV NODE_VERSION=v18.17.1
 RUN apt install -y curl
 ENV NVM_DIR=/nvm
 RUN mkdir -p $NVM_DIR
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}
-RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION}
-RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
-ENV PATH="${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}"
+RUN . "$NVM_DIR/nvm.sh" && nvm use ${NODE_VERSION}
+RUN . "$NVM_DIR/nvm.sh" && nvm alias default ${NODE_VERSION}
+ENV PATH="${NVM_DIR}/versions/node/${NODE_VERSION}/bin/:${PATH}"
 RUN node --version
 RUN npm --version
 RUN npm install --global yarn

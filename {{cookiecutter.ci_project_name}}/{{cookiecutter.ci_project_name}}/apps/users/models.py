@@ -1,7 +1,8 @@
 from django.contrib.auth.models import AbstractUser
+from django.core import signing
 from django.db import models
 
-from {{cookiecutter.ci_project_name}}.utils.models import TimestampMixin, UUIDMixin
+from {{cookiecutter.ci_project_name}}.utils.models import TimestampMixin, MediumIDMixin
 from {{cookiecutter.ci_project_name}}.utils.email import MailMixin
 
 class AccountTypes(models.TextChoices):

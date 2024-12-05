@@ -77,7 +77,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "graphene_django",
-    "graphql_auth",
     "graphql_jwt.refresh_token.apps.RefreshTokenConfig",
     "storages",
     "django_q",

@@ -1,12 +1,11 @@
-from . import auth, logout, profile, register
+from . import auth, profile, register
 
 
 class Mutations(object):
     token_auth = auth.TokenAuth.Field()
     send_password_reset_email = auth.SendPasswordResetEmail.Field()
     password_reset = auth.PasswordReset.Field()
-
-    logout = logout.Logout.Field()
+    logout = auth.Logout.Field()
 
     update_user_profile = profile.UpdateUserProfile.Field()
 

@@ -39,7 +39,7 @@ test_backend:
   needs:
     - build_docker_image
   services:
-    - name: postgis/postgis:latest
+    - name: postgres:13.3-alpine
       alias: postgres
   script:
     - export DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres
@@ -56,15 +56,17 @@ test_backend:
 
     # Or use these lines with the deploy/cluster/install_ci_serviceaccount.sh script
     # to create a service account and store the connection file in the repo with git-crypt
-    - export KUBECONFIG=$PWD/kubeconfig-sa.$ENV.secrets.yaml
+    - export SA=$PWD/kubeconfig-sa.${ENV}.secrets.yaml
+    - bin/sops/unlock-file $SA > $SA.decrypted
+    - export KUBECONFIG=$SA.decrypted
     - chmod 0600 $KUBECONFIG
 
+    - export SECRETS=$PWD/helm-values.${ENV}.secrets.yaml
+    - bin/sops/unlock-file $SECRETS > $SECRETS.decrypted
     - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
     - helm dependency update ./deploy/chart/
-    - export SECRETS=$PWD/helm-values.${ENV}.secrets.yaml
-    - bin/sops-unlock $SECRETS > $ENV.decrypted.yaml
   script:
-    - bin/helm-deploy "${CI_COMMIT_SHA}" "${ENV}" "$ENV.decrypted.yaml"
+    - bin/helm-deploy "${CI_COMMIT_SHA}" "${ENV}" "$SECRETS.decrypted"
 
 
 deploy_staging:

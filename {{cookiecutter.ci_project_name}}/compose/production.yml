@@ -1,7 +1,7 @@
 version: '2.1'
 services:
   psql:
-    image: sameersbn/postgresql:9.6-2
+    image: sameersbn/postgresql:14
 #    expose:
 #      - '5432'
     ports:

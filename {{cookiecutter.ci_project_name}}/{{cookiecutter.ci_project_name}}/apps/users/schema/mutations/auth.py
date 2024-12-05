@@ -36,17 +36,17 @@ class TokenAuth(graphene.Mutation):
             USERNAME_FIELD = "username__iexact"
             username = kwargs.get(USERNAME_FIELD)
 
-            query_kwargs = {USERNAME_FIELD: kwargs[USERNAME_FIELD]}
+            query_kwargs = {USERNAME_FIELD: username}
             password = kwargs.get("password")
 
-            user = User.objects.get(**query_kwargs)
+            find_user = User.objects.get(**query_kwargs)
             info.context._jwt_token_auth = True
             if hasattr(info.context, "user"):
-                info.context.user = user
+                info.context.user = find_user
 
             user = authenticate(
                 request=info.context,
-                username=username,
+                username=find_user.username,
                 password=password,
             )
             if not user:

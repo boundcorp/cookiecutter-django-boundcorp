@@ -26,13 +26,14 @@ for TAG_IMAGE in "release-backend" "release-frontend"; do
 
 done
 NAMESPACE="${CI_PROJECT_NAME}-${CHANNEL}"
+RELEASE_NAME="${CI_PROJECT_NAME}"
 echo "Deploying helm release into $NAMESPACE..."
 
 
 kubectl get pods -n $NAMESPACE
 
-helm upgrade --install $CI_PROJECT_NAME deploy/chart/ \
+helm upgrade --install $RELEASE_NAME deploy/chart/ \
     --values="$VALUES" \
-    -n $NAMESPACE --create-namespace \
+    -n $NAMESPACE \
     --set image.repository=$CI_REGISTRY_IMAGE/$CHANNEL \
     --set image.tag=$VERSION

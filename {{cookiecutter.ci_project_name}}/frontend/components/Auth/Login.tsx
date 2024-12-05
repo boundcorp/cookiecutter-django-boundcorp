@@ -36,7 +36,7 @@ export default function LoginForm() {
       })).data?.tokenAuth;
       setError("");
 
-      if (result?.token) {
+      if (result?.__typename === "TokenAuthSuccess" && result?.token) {
         setAuthToken(result.token, result.refreshToken || "");
         snackbar.showSuccess("Logged in successfully, welcome back!");
         await profileQuery.refetch();
@@ -44,7 +44,7 @@ export default function LoginForm() {
         setError("Invalid username or password");
       }
     } catch (err) {
-      snackbar.showError(err, "Error logging in");
+      snackbar.showError(err as string, "Error logging in");
       setError(
         parseGQLErrorMessage(err) || "An error occurred, please contact support"
       );

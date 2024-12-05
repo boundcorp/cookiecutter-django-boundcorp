@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-cat .sops/pubkeys/*.txt | tr "\n" "," | sed 's/,$//'

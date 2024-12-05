@@ -126,5 +126,7 @@ minio:
   rootPassword: "{{cookiecutter.ci_project_name}}-secret"
   mode: standalone
   replicas: 1
+  persistence:
+    size: 20gi
   buckets:
     - name: assets

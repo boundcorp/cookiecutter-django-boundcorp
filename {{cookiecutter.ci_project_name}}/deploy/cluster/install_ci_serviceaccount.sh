@@ -15,6 +15,17 @@ metadata:
 EOF
 
 cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ci-service-account-token
+  namespace: $NAMESPACE
+  annotations:
+    kubernetes.io/service-account.name: ci-service-account
+type: kubernetes.io/service-account-token
+EOF
+
+cat <<EOF | kubectl apply -f -
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -56,16 +67,13 @@ NEW_CONTEXT=$NAMESPACE
 KUBECONFIG_FILE="kubeconfig-sa.$ENV.secrets.yaml"
 
 
-SECRET_NAME=$(kubectl get serviceaccount ${SERVICE_ACCOUNT_NAME} \
-  --context ${CONTEXT} \
-  --namespace ${NAMESPACE} \
-  -o jsonpath='{.secrets[0].name}')
-TOKEN_DATA=$(kubectl get secret ${SECRET_NAME} \
+TOKEN_DATA=$(kubectl get secret ci-service-account-token \
   --context ${CONTEXT} \
   --namespace ${NAMESPACE} \
   -o jsonpath='{.data.token}')
 
 TOKEN=$(echo ${TOKEN_DATA} | base64 -d)
+echo "Got ci-service-account-token: ${TOKEN}"
 
 # Create dedicated kubeconfig
 # Create a full copy

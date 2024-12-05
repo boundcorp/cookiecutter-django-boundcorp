@@ -1,6 +1,4 @@
-import graphene
 from graphene_django import DjangoObjectType
-from graphql_auth.models import UserStatus
 
 from {{cookiecutter.ci_project_name}}.apps.users import models
 

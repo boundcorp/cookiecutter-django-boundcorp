@@ -53,103 +53,6 @@ mutation logout {
     }
 }
 
-mutation registerBusiness($input: RegisterBusinessInput) {
-    registerBusiness(input: $input) {
-        __typename
-        ... on RegisterBusinessSuccess {
-            user {
-                ...UserProfile
-            }
-            business {
-                ...BusinessPrivateDetails
-            }
-        }
-        ... on Error {
-            message
-        }
-    }
-}
-
-mutation createClient($input: CreateClientInput!) {
-    createClient(input: $input) {
-        __typename
-        ... on CreateClientSuccess {
-            client {
-                ...ClientDetails
-            }
-        }
-        ... on Error {
-            message
-        }
-    }
-}
-
-mutation createBusinessUser($input: CreateBusinessUserInput!) {
-    createBusinessUser(input: $input) {
-        __typename
-        ... on CreateBusinessUserSuccess {
-            user {
-                ...BusinessUserDetails
-            }
-        }
-        ... on Error {
-            message
-        }
-    }
-}
-
-mutation paypalMerchantSignup {
-    paypalMerchantSignup {
-        __typename
-        ... on PaypalMerchantSignupSuccess {
-            onboardingUrl
-        }
-        ... on Error {
-            message
-        }
-    }
-}
-mutation paypalMerchantOnboarded($input: PaypalMerchantOnboardedInput!) {
-    paypalMerchantOnboarded(input: $input) {
-        __typename
-        ... on PaypalMerchantOnboardedSuccess {
-            success
-            merchantId
-        }
-        ... on Error {
-            message
-        }
-    }
-}
-
-mutation editBusiness($input: EditBusinessInput!) {
-    editBusiness(input: $input) {
-        __typename
-        ... on EditBusinessSuccess {
-            business {
-                ...BusinessPrivateDetails
-            }
-        }
-        ... on Error {
-            message
-        }
-    }
-}
-mutation editClient($input: EditClientInput) {
-    editClient(input: $input) {
-        __typename
-        ... on EditClientSuccess {
-            client {
-                ...ClientDetails
-            }
-        }
-        ... on Error {
-            message
-        }
-    }
-
-}
-
 
 mutation updateUserProfile($input: UpdateUserProfileInput) {
     updateUserProfile(input: $input) {
@@ -162,11 +65,5 @@ mutation updateUserProfile($input: UpdateUserProfileInput) {
         ... on Error {
             message
         }
-    }
-}
-
-mutation getBillingPortalUrl {
-    getBillingPortalUrl {
-        url
     }
 }

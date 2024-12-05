@@ -15,7 +15,7 @@ docker_clean_build:
 	bin/dc build --no-cache runserver
 
 generate:
-	bin/dj python manage.py graphql_schema
+	pipenv run python manage.py graphql_schema
 	cd frontend && yarn gen
 
 clean_locks:
@@ -35,7 +35,7 @@ frontend_dev:
 
 pip:
 	pipenv install
-	pipenv lock
+	pipenv clean
 	make pip_freeze
 
 pip_freeze:
@@ -49,7 +49,7 @@ precommit:
 # CI Pipeline & Tests
 
 test:
-	bin/dj pytest
+	pipenv run pytest
 
 test_backend_coverage:
 	pytest --cov={{cookiecutter.ci_project_name}}/apps --cov-config=.coveragerc --cov-report html --cov-report term
@@ -73,7 +73,7 @@ fix-file-ownership: # Fix docker-created files that are owned by root user
 	bin/fix-file-ownership
 
 mypy:
-	bin/dj mypy
+	pipenv run mypy
 
 isort:
 	pipenv run isort {{cookiecutter.ci_project_name}}

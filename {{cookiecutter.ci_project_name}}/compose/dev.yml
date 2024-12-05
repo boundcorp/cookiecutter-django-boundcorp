@@ -1,7 +1,7 @@
 version: '2.1'
 services:
   psql:
-    image: sameersbn/postgresql:9.6-2
+    image: sameersbn/postgresql:14
     # ports: ['5432:5432'] # uncomment this to connect from a local desktop sql client
     expose: ["5432"]
 
@@ -70,8 +70,9 @@ services:
       service: ${CI_PROJECT_NAME}-django-dev
       file: build.yml
     command: ["/entrypoint.sh", "python", "manage.py", "runserver", "0.0.0.0:8000"]
-    ports:
-      - "${DEVELOP_BACKEND_PORT}:8000"
+    # Uncomment Ports and comment out expose to connect from a local desktop browser
+    #ports: ["${DEVELOP_BACKEND_PORT}:8000"]
+    expose: ["8000"]
     links:
       - psql
       - minio
@@ -83,10 +84,6 @@ services:
       - DEVELOP_BACKEND_PORT
       - DEVELOP_INGRESS_PORT
       - DATABASE_URL=psql://${CI_PROJECT_NAME}:${CI_PROJECT_NAME}@psql:5432/${CI_PROJECT_NAME}
-      - PAYPAL_PLATFORM_CLIENT_ID
-      - PAYPAL_PLATFORM_SECRET_KEY
-      - STAGING_STRIPE_PUBLIC_KEY
-      - STAGING_STRIPE_SECRET_KEY
       - ENV
       - SECRET_KEY=develop_key
       - DEBUG=true
@@ -108,10 +105,6 @@ services:
       - DEVELOP_BACKEND_PORT
       - DEVELOP_INGRESS_PORT
       - DATABASE_URL=psql://${CI_PROJECT_NAME}:${CI_PROJECT_NAME}@psql:5432/${CI_PROJECT_NAME}
-      - PAYPAL_PLATFORM_CLIENT_ID
-      - PAYPAL_PLATFORM_SECRET_KEY
-      - STAGING_STRIPE_PUBLIC_KEY
-      - STAGING_STRIPE_SECRET_KEY
       - ENV
       - SECRET_KEY=develop_key
       - DEBUG=true
@@ -124,8 +117,9 @@ services:
     command: "yarn dev"
     entrypoint: []
     working_dir: /app/frontend
-    ports:
-      - "${DEVELOP_FRONTEND_PORT}:3000"
+    # Uncomment Ports and comment out expose to connect from a local desktop browser
+    #ports: ["${DEVELOP_FRONTEND_PORT}:3000"]
+    expose: ["3000"]
     links:
       - psql
       - minio
@@ -138,7 +132,6 @@ services:
       - DEVELOP_FRONTEND_PORT
       - APOLLO_BACKEND_URI=http://ingress:80/api/graphql/
       - NEXT_PUBLIC_APOLLO_URI=http://localhost:${DEVELOP_INGRESS_PORT}/api/graphql/
-      - PAYPAL_PLATFORM_CLIENT_ID
       - ENV
       - DEBUG=true
       - SERVICE=backend

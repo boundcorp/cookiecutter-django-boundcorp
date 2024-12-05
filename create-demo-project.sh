@@ -1,4 +1,5 @@
 export NAME="${1:-demo}"
+set -eux
 if [[ -z "$NAME" ]]; then
   echo "Usage: $0 <project-name>"
   exit 1
@@ -10,12 +11,13 @@ cookiecutter . --no-input \
   author="Leeward Bound" \
   email=leeward@boundcorp.net \
   production_hostname=$NAME.boundcorp.net \
-  development_backend_port=8811 \
-  development_ingress_port=1118 \
-  development_frontend_port=1188
+  development_backend_port=8877 \
+  development_frontend_port=7788 \
+  development_ingress_port=7778
 
-echo "Created template in $NAME/"
-pushd $NAME
+mv $NAME ../
+echo "Created template in ../$NAME/"
+pushd ../$NAME
 git init
 git add .
 echo "git initialized"
