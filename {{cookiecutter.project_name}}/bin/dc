@@ -1,0 +1,8 @@
+#!/bin/bash
+COMPOSE_ROLE=$(test -z "$COMPOSE_ROLE" && echo "dev" || echo "$COMPOSE_ROLE")
+PROJECT=$(test -z "$CI_PROJECT_NAME" && echo "$(basename $PWD)" || echo "$CI_PROJECT_NAME")
+
+# UID_GID is used to set the user and group id for the container
+# so that files created by the container are owned by the host user
+export UID_GID=$(id -u):$(id -g)
+UID_GID="$(id -u):$(id -g)" docker compose -p $PROJECT -f infra/$COMPOSE_ROLE/compose.yml $*

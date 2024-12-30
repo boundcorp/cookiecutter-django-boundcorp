@@ -1,0 +1,46 @@
+services:
+  ############################################################
+  # Django Services
+  ############################################################
+  .common-django-settings: &common-django-settings
+    extends:
+      service: {{cookiecutter.project_name}}-django-dev
+      file: ../common/compose.yml
+    volumes:
+      - ../../:/app
+    links:
+      - psql
+    env_file:
+      - ../common/.env
+      - ../dev/.env
+
+  django_shell: # This is a one-shot command runner service, for manage.py or bash, it dies immediately
+    <<: *common-django-settings
+    environment:
+      - SERVICE=django_shell
+    command: "bash"
+    entrypoint: []
+
+  backend:
+    <<: *common-django-settings
+    ports:
+      - "{{cookiecutter.development_backend_port}}:8000"
+    entrypoint: ["/app/infra/dev/entrypoint.sh"]
+    command: ["/app/infra/dev/start-runserver.sh"]
+    environment:
+      - SERVICE=backend
+
+  ############################################################
+  # 3rd Party Services
+  ############################################################
+  psql:
+    image: sameersbn/postgresql:14
+    #ports: ['5432:5432'] # uncomment this to connect from a local desktop sql client
+    expose: ["5432"] 
+
+    environment:
+      DB_NAME: {{cookiecutter.project_name}}
+      DB_PASS: {{cookiecutter.project_name}}
+      DB_USER: {{cookiecutter.project_name}}
+    volumes:
+      - /data/{{cookiecutter.project_name}}/postgresql:/var/lib/postgresql

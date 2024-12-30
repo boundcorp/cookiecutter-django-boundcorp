@@ -1,7 +1,0 @@
-fragment UserProfile on UserProfile {
-    id
-    firstName
-    lastName
-    email
-    username
-}

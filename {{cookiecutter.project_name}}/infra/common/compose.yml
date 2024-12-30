@@ -1,0 +1,13 @@
+services:
+  {{cookiecutter.project_name}}-django-dev:
+    build:
+      context: ../../
+      dockerfile: Dockerfile
+      target: dev
+    image: {{cookiecutter.docker_image_url}}/dev:latest
+  {{cookiecutter.project_name}}-django:
+    build:
+      context: ../../
+      dockerfile: Dockerfile
+      target: release-backend
+    image: {{cookiecutter.docker_image_url}}/release-backend:latest

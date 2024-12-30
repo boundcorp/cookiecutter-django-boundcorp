@@ -1,5 +1,0 @@
-query myProfile {
-    myProfile {
-        ...UserProfile
-    }
-}

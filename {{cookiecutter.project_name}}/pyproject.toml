@@ -1,0 +1,81 @@
+[tool.poetry]
+name = "{{cookiecutter.project_name}}"
+version = "0.1.0"
+description = ""
+packages = [
+    { include = "{{cookiecutter.project_name}}" },
+]
+authors = ["{{cookiecutter.author}} <{{cookiecutter.email}}>"]
+readme = "README.md"
+
+
+[tool.poetry.dependencies]
+python = "^3.10"
+django = "^5.0.0"
+django-environ = "*"
+django-cors-headers = "*"
+django-rest-framework = "*"
+requests = "*"
+django-extensions = "*"
+django-filter = "*"
+psycopg2-binary = "*"
+uvicorn = "*"
+whitenoise = "*"
+django-minio-storage = "*"
+bpython = "*"
+pydantic = "*"
+djantic2 = "*"
+pytz = "*"
+factory-boy = "*"
+ruff = "*"
+pytest = "*"
+pytest-django = "*"  # Added pytest-django dependency
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 120
+target-version = ['py38']
+include = '\.pyi?$'
+exclude = '''
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | migrations
+  )/
+)
+'''
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 88
+
+[tool.flake8]
+ignore = ["E203", "E266", "E501", "W503", "F403", "F401"]
+max-line-length = 88
+max-complexity = 18
+select = ["B", "C", "E", "F", "W", "T4"]
+
+[tool.mypy]
+files = ["{{cookiecutter.project_name}}"]
+ignore_missing_imports = true
+plugins = ["mypy_django_plugin.main", "pydantic.mypy"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "{{cookiecutter.project_name}}.settings.test_settings"
+python_files = ["test_*.py", "*_test.py", "testing/python/*.py"]
+addopts = "--ds={{cookiecutter.project_name}}.settings.test_settings"

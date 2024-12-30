@@ -1,0 +1,45 @@
+name: Test
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      psql:
+        image: postgres:13.3-alpine
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: ${{ runner.os }}-venv-${{ hashFiles('**/requirements.freeze.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-venv-
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip uv
+        uv venv
+        uv pip install -e .
+      if: steps.cache.outputs.cache-hit != 'true'
+    - name: Run tests and linting
+      run: |
+        source .venv/bin/activate
+        make format
+        make test_backend_coverage
+      env:
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres

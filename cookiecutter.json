@@ -1,6 +1,6 @@
 {
-    "ci_project_name": "",
-    "ci_project_path": "",
+    "project_name": "",
+    "docker_image_url": "",
     "development_backend_port": "8822",
     "development_frontend_port": "2288",
     "development_ingress_port": "2228",
@@ -8,12 +8,14 @@
     "author": "",
     "email": "",
     "version": "0.1.0",
+    "devops_sops_keys": "",
     "_copy_without_render": [
         "*.html",
         "fixtures/",
         "deploy/chart/templates",
         "deploy/chart/",
         "frontend/node_modules",
-        "frontend/**/*.tsx"
+        "frontend/**/*.tsx",
+        ".github"
     ]
 }

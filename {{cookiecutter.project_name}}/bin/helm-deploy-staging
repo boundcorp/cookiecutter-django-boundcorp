@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -e
+
+cd $(dirname $0)/..
+
+BUILD_AND_PUSH=true bin/helm-deploy $(current_version) staging
