@@ -48,7 +48,10 @@ Strip legacy frontend (NextJS, Apollo, GraphQL) and backend (django-q, MinIO, DR
 ### Tier 1: Zero-dep mode (default)
 
 - `python manage.py runserver` — works immediately
-- SQLite database
+- Embedded Postgres via `pgserver` — real Postgres, no external server needed
+  - Data stored in `~/.{project_name}/pgdata` (or configurable)
+  - Locale forced to `C.UTF-8` for container compatibility
+  - Same engine as production — no SQLite/Postgres divergence
 - `FileSystemStorage` for media
 - `CELERY_TASK_ALWAYS_EAGER = True` — no Redis needed
 - No Docker required
@@ -83,11 +86,17 @@ Strip legacy frontend (NextJS, Apollo, GraphQL) and backend (django-q, MinIO, DR
 ### Detection logic in `settings/project.py`
 
 ```python
+# Locale fix for pgserver in containers
+for _lc_var in ("LC_ALL", "LANG", "LC_CTYPE", "LC_MESSAGES", "LC_COLLATE"):
+    os.environ.setdefault(_lc_var, "C.UTF-8")
+
 # Database
 if os.environ.get("DATABASE_URL"):
     # Parse DATABASE_URL → Postgres config
 else:
-    # SQLite at project root
+    import pgserver
+    _pg = pgserver.get_server(str(DATA_DIR / "pgdata"), cleanup_mode=None)
+    # Parse pgserver URI → Django DATABASES config
 
 # Storage
 if os.environ.get("S3_ENDPOINT_URL"):
@@ -103,7 +112,7 @@ else:
 ```
 
 ### `settings/test_settings.py`
-- SQLite, eager Celery, filesystem storage (same approach as current)
+- pgserver (or SQLite for speed — TBD), eager Celery, filesystem storage
 
 ## Infrastructure Updates
 
@@ -166,6 +175,7 @@ else:
 - `django-ninja-jwt` (or equivalent)
 - `celery[redis]`
 - `django-storages[s3]` (boto3-based, works with Garage)
+- `pgserver` (embedded Postgres for zero-dep dev mode)
 
 ### Python — Keep
 - `django`, `psycopg2-binary`, `whitenoise`, `django-cors-headers`
