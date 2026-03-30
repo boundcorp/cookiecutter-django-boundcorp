@@ -88,6 +88,7 @@ INSTALLED_APPS = [
     "storages",
     "django_filters",
     "django_extensions",
+    "ninja_jwt",
     "{{cookiecutter.project_name}}.apps.users",
 ]
 
