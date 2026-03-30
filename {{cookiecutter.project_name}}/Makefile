@@ -39,6 +39,9 @@ freeze:
 test:
 	pytest
 
+test_aio:
+	bin/dc run --rm backend pytest --ds={{cookiecutter.project_name}}.settings.test_settings_aio -v
+
 test_backend_coverage:
 	pytest --cov={{cookiecutter.project_name}}/apps --cov-config=.coveragerc --cov-report html --cov-report term
 	echo "View coverage report: file://$${PWD}/htmlcov/index.html"
