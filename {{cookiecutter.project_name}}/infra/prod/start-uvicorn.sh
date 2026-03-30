@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-
 /app/.venv/bin/python3 manage.py migrate
+/app/.venv/bin/celery -A {{cookiecutter.project_name}} worker -l info --detach
 /app/.venv/bin/uvicorn \
-    cheersfinance.asgi:application \
+    {{cookiecutter.project_name}}.asgi:application \
     --host 0.0.0.0 \
     --port 8000

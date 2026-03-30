@@ -9,5 +9,5 @@ services:
     build:
       context: ../../
       dockerfile: Dockerfile
-      target: release-backend
-    image: {{cookiecutter.docker_image_url}}/release-backend:latest
+      target: release
+    image: {{cookiecutter.docker_image_url}}/release:latest
