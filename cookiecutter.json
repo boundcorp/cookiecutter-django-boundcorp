@@ -10,8 +10,10 @@
     "version": "0.1.0",
     "devops_sops_keys": "",
     "_copy_without_render": [
+        "*.html",
+        "*.yml",
+        "*.yaml",
         "fixtures/",
-        "frontend/src/",
-        ".github/"
+        "frontend/"
     ]
 }
