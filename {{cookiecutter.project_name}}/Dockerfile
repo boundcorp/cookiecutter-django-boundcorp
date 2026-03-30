@@ -37,6 +37,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-dev \
     libffi-dev \
     libssl-dev \
+    libcairo2-dev \
+    pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -54,6 +56,8 @@ RUN cd /app/frontend && npm run build
 COPY {{cookiecutter.project_name}}/ /app/{{cookiecutter.project_name}}
 COPY infra/ /app/infra
 COPY manage.py /app/
+COPY pyproject.toml /app/
+RUN uv pip install -e .
 
 #
 # Developer Stage
@@ -71,6 +75,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libcurl4-openssl-dev \
     libssl-dev \
     libffi-dev \
+    libcairo2-dev \
+    pkg-config \
     curl \
     && rm -rf /var/lib/apt/lists/*
 

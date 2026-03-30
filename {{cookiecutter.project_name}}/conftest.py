@@ -6,6 +6,22 @@ from {{cookiecutter.project_name}}.apps.users.factories import UserFactory
 from {{cookiecutter.project_name}}.apps.users.models import User
 
 
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers", "has_docker_services: test requires real docker services (postgres, redis, garage)"
+    )
+
+
+def pytest_collection_modifyitems(config, items):
+    from django.conf import settings
+
+    if not getattr(settings, "HAS_DOCKER_SERVICES", False):
+        skip = pytest.mark.skip(reason="docker services not available (need DATABASE_URL, CELERY_BROKER_URL, S3_ENDPOINT_URL)")
+        for item in items:
+            if "has_docker_services" in item.keywords:
+                item.add_marker(skip)
+
+
 @pytest.fixture
 def strong_pass():
     return "B0undC0rp!!"

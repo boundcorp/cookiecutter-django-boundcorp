@@ -27,6 +27,7 @@ whitenoise = "*"
 pydantic = "*"
 pytz = "*"
 requests = "*"
+xhtml2pdf = ">=0.2.13"
 factory-boy = "*"
 ruff = "*"
 pytest = "*"
@@ -50,5 +51,5 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "{{cookiecutter.project_name}}.settings.test_settings"
-python_files = ["test_*.py", "*_test.py"]
+python_files = ["test_*.py", "*_test.py", "tests.py"]
 addopts = "--ds={{cookiecutter.project_name}}.settings.test_settings"

@@ -8,7 +8,7 @@ if "TEST_USE_ENV" not in os.environ:
 
 from {{cookiecutter.project_name}}.settings import *
 
-SECRET_KEY = "Test Only Key"
+SECRET_KEY = "test-only-key-at-least-32-characters-long"
 IS_TEST = True
 
 logging.disable(logging.CRITICAL)
@@ -21,3 +21,7 @@ BASE_URL = f"http://localhost:{BACKEND_PORT}"
 
 # pgserver handles the database automatically — no override needed.
 # Tests use the same embedded postgres as dev, with a test-specific database.
+
+HAS_DOCKER_SERVICES = all(
+    os.environ.get(v) for v in ("DATABASE_URL", "CELERY_BROKER_URL", "S3_ENDPOINT_URL")
+)
