@@ -1,21 +1,53 @@
 from datetime import timedelta
-from urllib import parse
 
-import urllib3
 from django.conf import settings
-from minio import Minio
+
+
+def _get_s3_client():
+    import boto3
+    return boto3.client(
+        "s3",
+        endpoint_url=settings.AWS_S3_ENDPOINT_URL,
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+    )
 
 
 def presigned_put_object(key, content_type, expires=3600):
-    if "minio" in settings.DEFAULT_FILE_STORAGE:
-        return minio_presigned_put_object(key, expires)
-    elif "gcloud" in settings.DEFAULT_FILE_STORAGE:
-        return gcp_presigned_put_object(key, content_type, expires)
+    if hasattr(settings, "GS_CREDENTIALS"):
+        return _gcp_presigned_put_object(key, content_type, expires)
+    if hasattr(settings, "AWS_S3_ENDPOINT_URL"):
+        client = _get_s3_client()
+        return client.generate_presigned_url(
+            "put_object",
+            Params={
+                "Bucket": settings.AWS_STORAGE_BUCKET_NAME,
+                "Key": key,
+                "ContentType": content_type,
+            },
+            ExpiresIn=expires,
+        )
+    raise RuntimeError("No object storage configured — set S3_ENDPOINT_URL or GOOGLE_APPLICATION_CREDENTIALS")
 
 
-def gcp_presigned_put_object(key, content_type, expires=3600):
+def presigned_get_object(key, expires=86400):
+    if hasattr(settings, "GS_CREDENTIALS"):
+        return _gcp_presigned_get_object(key, expires)
+    if hasattr(settings, "AWS_S3_ENDPOINT_URL"):
+        client = _get_s3_client()
+        return client.generate_presigned_url(
+            "get_object",
+            Params={
+                "Bucket": settings.AWS_STORAGE_BUCKET_NAME,
+                "Key": key,
+            },
+            ExpiresIn=expires,
+        )
+    raise RuntimeError("No object storage configured — set S3_ENDPOINT_URL or GOOGLE_APPLICATION_CREDENTIALS")
+
+
+def _gcp_presigned_put_object(key, content_type, expires=3600):
     from google.cloud import storage
-
     client = storage.Client(credentials=settings.GS_CREDENTIALS)
     bucket = client.bucket(settings.GS_BUCKET_NAME)
     blob = bucket.blob(key)
@@ -27,35 +59,8 @@ def gcp_presigned_put_object(key, content_type, expires=3600):
     )
 
 
-def minio_presigned_put_object(key, expires=3600):
-    client = Minio(
-        settings.MINIO_STORAGE_MEDIA_URL.split("/")[2],
-        access_key=settings.MINIO_STORAGE_ACCESS_KEY,
-        secret_key=settings.MINIO_STORAGE_SECRET_KEY,
-        secure=False,
-        http_client=urllib3.ProxyManager(f"http://{settings.MINIO_STORAGE_ENDPOINT}"),
-    )
-    return (
-        settings.MINIO_STORAGE_MEDIA_URL
-        + "/"
-        + "/".join(
-            client.presigned_put_object(
-                settings.MINIO_STORAGE_MEDIA_BUCKET_NAME, key, expires=timedelta(seconds=expires)
-            ).split("/")[4:]
-        )
-    )
-
-
-def presigned_get_object(key):
-    if "minio" in settings.DEFAULT_FILE_STORAGE:
-        return minio_presigned_get_object(key)
-    elif "gcloud" in settings.DEFAULT_FILE_STORAGE:
-        return gcp_presigned_get_object(key)
-
-
-def gcp_presigned_get_object(key, expires=86400):
+def _gcp_presigned_get_object(key, expires=86400):
     from google.cloud import storage
-
     client = storage.Client(credentials=settings.GS_CREDENTIALS)
     bucket = client.bucket(settings.GS_BUCKET_NAME)
     blob = bucket.blob(key)
@@ -64,24 +69,3 @@ def gcp_presigned_get_object(key, expires=86400):
         method="GET",
         expiration=timedelta(seconds=expires),
     )
-
-
-def minio_presigned_get_object(key):
-    client = Minio(
-        settings.MINIO_STORAGE_MEDIA_URL.split("/")[2],
-        access_key=settings.MINIO_STORAGE_ACCESS_KEY,
-        secret_key=settings.MINIO_STORAGE_SECRET_KEY,
-        secure=False,
-        http_client=urllib3.ProxyManager(f"http://{settings.MINIO_STORAGE_ENDPOINT}"),
-    )
-    return (
-        settings.MINIO_STORAGE_MEDIA_URL
-        + "/"
-        + "/".join(client.presigned_get_object(settings.MINIO_STORAGE_MEDIA_BUCKET_NAME, key).split("/")[4:])
-    )
-
-
-def re_sign_url(url):
-    if url.startswith(settings.STORAGE_MEDIA_URL):
-        url = parse.unquote("/".join(url.split("?")[0].split("/")[4:]))
-        return presigned_get_object(url)

@@ -260,30 +260,27 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", "*"]
 
-credentials_file = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "")
+# Object storage: S3-compatible (Garage/MinIO/AWS) or local filesystem
+_s3_endpoint = os.environ.get("S3_ENDPOINT_URL")
+if _s3_endpoint:
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+    AWS_S3_ENDPOINT_URL = _s3_endpoint
+    AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID", "dev")
+    AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY", "dev12345678")
+    AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME", "{{cookiecutter.project_name}}-media")
+    AWS_S3_USE_SSL = env_variable_truthy("AWS_S3_USE_SSL")
+    AWS_QUERYSTRING_AUTH = True  # presigned URLs
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_DEFAULT_ACL = None
 
-if os.path.exists(credentials_file):
-    from google.oauth2 import service_account
-    # GCP Bucket Configuration
-    DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
-    GS_BUCKET_NAME = os.environ.get("GS_BUCKET_NAME", "")
-    GS_PROJECT_ID = os.environ.get("GS_PROJECT_ID", "")
-    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(credentials_file)
-else:
-    # Fallback to minio
-    MINIO_STORAGE_ENDPOINT = os.environ.get("MINIO_STORAGE_ENDPOINT", "minio:9000")
-    MINIO_STORAGE_ACCESS_KEY = os.environ.get("MINIO_STORAGE_ACCESS_KEY", "dev")
-    MINIO_STORAGE_SECRET_KEY = os.environ.get("MINIO_STORAGE_SECRET_KEY", "test1234")
-    MINIO_STORAGE_MEDIA_BUCKET_NAME = os.environ.get("MINIO_STORAGE_MEDIA_BUCKET_NAME",
-                                                     "{{cookiecutter.project_name}}-assets")
-    MINIO_STORAGE_USE_HTTPS = env_variable_truthy("MINIO_STORAGE_USE_HTTPS")
-    MINIO_STORAGE_AUTO_CREATE_MEDIA_BUCKET = True
-    MINIO_STORAGE_MEDIA_URL = os.environ.get(
-        "MINIO_STORAGE_MEDIA_URL", f"http://localhost:9000/{MINIO_STORAGE_MEDIA_BUCKET_NAME}"
-    )
-    MINIO_STORAGE_MEDIA_USE_PRESIGNED = env_variable_truthy("MINIO_STORAGE_MEDIA_USE_PRESIGNED", "true")
-
-    DEFAULT_FILE_STORAGE = "minio_storage.storage.MinioMediaStorage"
+    credentials_file = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "")
+    if os.path.exists(credentials_file):
+        from google.oauth2 import service_account
+        DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+        GS_BUCKET_NAME = os.environ.get("GS_BUCKET_NAME", "")
+        GS_PROJECT_ID = os.environ.get("GS_PROJECT_ID", "")
+        GS_CREDENTIALS = service_account.Credentials.from_service_account_file(credentials_file)
+# else: Django default FileSystemStorage (no config needed)
 
 if not DEBUG:
     # STAGING AND PROD
@@ -326,8 +323,6 @@ if "SENTRY_BACKEND_URL" in os.environ:
         # django.contrib.auth) you may enable sending PII data.
         send_default_pii=True,
     )
-
-THUMBNAIL_STORAGE = DEFAULT_FILE_STORAGE
 
 if "REDIS_URL" in os.environ:
     redis_url = urlparse(os.environ["REDIS_URL"])
