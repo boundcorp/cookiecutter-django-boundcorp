@@ -10,12 +10,8 @@
     "version": "0.1.0",
     "devops_sops_keys": "",
     "_copy_without_render": [
-        "*.html",
         "fixtures/",
-        "deploy/chart/templates",
-        "deploy/chart/",
-        "frontend/node_modules",
-        "frontend/**/*.tsx",
-        ".github"
+        "frontend/src/",
+        ".github/"
     ]
 }
