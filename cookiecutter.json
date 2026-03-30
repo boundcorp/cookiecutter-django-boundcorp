@@ -11,8 +11,7 @@
     "devops_sops_keys": "",
     "_copy_without_render": [
         "*.html",
-        "*.yml",
-        "*.yaml",
+        ".github",
         "fixtures/",
         "frontend/"
     ]
