@@ -2,9 +2,6 @@
 import os
 from datetime import timedelta
 from typing import List, Tuple
-from urllib.parse import urlparse
-
-import environ
 
 
 class Environments:
@@ -17,9 +14,6 @@ def env_variable_truthy(key, default=""):
     return os.environ.get(key, default).lower().strip() in ["1", "true", "t", "y"]
 
 
-env = environ.Env(
-    DEBUG=(bool, False),
-)  # set default values and casting
 ENVIRONMENT = os.environ.get("APP_ENV", Environments.DEVELOPMENT).lower()
 BACKEND_PORT = int(os.environ.get("DEVELOP_BACKEND_PORT", 8000))
 INGRESS_PORT = int(os.environ.get("DEVELOP_INGRESS_PORT", 8888))
@@ -28,25 +22,46 @@ ROOT_URLCONF = "{{cookiecutter.project_name}}.settings.urls"
 
 
 
-DATABASE_HOST = os.environ.get("DATABASE_HOST", "psql")
-DATABASE_NAME = os.environ.get("DATABASE_NAME", "{{cookiecutter.project_name}}")
-DATABASE_USER = os.environ.get("DATABASE_USER", "{{cookiecutter.project_name}}")
-DATABASE_PORT = os.environ.get("DATABASE_PORT", "5432")
-DATABASE_PASSWORD = os.environ.get("DATABASE_PASSWORD", "{{cookiecutter.project_name}}")
-DATABASES = {
-    # To enable postgis engine:
-    # engine="django.contrib.gis.db.backends.postgis",
-    "default": DATABASE_HOST
-    and {
-        "ENGINE": "django.db.backends.postgresql",
-        "USER": DATABASE_USER,
-        "NAME": DATABASE_NAME,
-        "PASSWORD": DATABASE_PASSWORD,
-        "HOST": DATABASE_HOST,
-        "PORT": DATABASE_PORT,
+from pathlib import Path
+from urllib.parse import urlparse, parse_qs
+
+# pgserver locale fix for containers
+for _lc_var in ("LC_ALL", "LANG", "LC_CTYPE", "LC_MESSAGES", "LC_COLLATE"):
+    os.environ.setdefault(_lc_var, "C.UTF-8")
+
+DATA_DIR = Path(os.environ.get(
+    "DATA_DIR",
+    os.path.expanduser("~/.{{cookiecutter.project_name}}")
+))
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+_database_url = os.environ.get("DATABASE_URL")
+if _database_url:
+    _parsed = urlparse(_database_url)
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": _parsed.path.lstrip("/") or "postgres",
+            "USER": _parsed.username or "postgres",
+            "PASSWORD": _parsed.password or "",
+            "HOST": _parsed.hostname or "",
+            "PORT": str(_parsed.port or 5432),
+        }
     }
-    or env.db("DATABASE_URL", default="")
-}
+else:
+    import pgserver
+    _pg = pgserver.get_server(str(DATA_DIR / "pgdata"), cleanup_mode=None)
+    _parsed = urlparse(_pg.get_uri())
+    _qs = parse_qs(_parsed.query)
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": _parsed.path.lstrip("/") or "postgres",
+            "USER": _parsed.username or "postgres",
+            "PASSWORD": _parsed.password or "",
+            "HOST": _qs.get("host", [""])[0] or (_parsed.hostname or ""),
+        }
+    }
 
 MANAGERS = ADMINS = [
     ("{{cookiecutter.author}}", "{{cookiecutter.email}}"),
