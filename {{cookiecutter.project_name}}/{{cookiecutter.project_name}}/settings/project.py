@@ -308,6 +308,14 @@ APPEND_SLASH = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
+# Celery
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
+if CELERY_BROKER_URL:
+    CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", CELERY_BROKER_URL)
+else:
+    CELERY_TASK_ALWAYS_EAGER = True
+    CELERY_TASK_EAGER_PROPAGATES = True
+
 if "SENTRY_BACKEND_URL" in os.environ:
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
