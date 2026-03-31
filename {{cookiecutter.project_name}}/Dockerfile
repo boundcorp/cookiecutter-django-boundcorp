@@ -56,7 +56,7 @@ RUN cd /app/frontend && npm run build
 COPY {{cookiecutter.project_name}}/ /app/{{cookiecutter.project_name}}
 COPY infra/ /app/infra
 COPY manage.py /app/
-COPY pyproject.toml /app/
+COPY pyproject.toml README.md /app/
 RUN uv pip install -e .
 
 #
