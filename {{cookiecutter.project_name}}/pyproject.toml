@@ -45,6 +45,14 @@ target-version = "py312"
 select = ["E", "F", "I", "UP"]
 ignore = ["E501"]
 
+[tool.ruff.lint.per-file-ignores]
+"{{cookiecutter.project_name}}/settings/*.py" = ["E402", "F403", "F405"]
+"{{cookiecutter.project_name}}/api/__init__.py" = ["E402"]
+"**/tests.py" = ["E402"]
+"**/tests/*.py" = ["E402"]
+"{{cookiecutter.project_name}}/utils/*.py" = ["E402", "UP031"]
+"{{cookiecutter.project_name}}/utils/**/*.py" = ["UP031"]
+
 [tool.mypy]
 files = ["{{cookiecutter.project_name}}"]
 ignore_missing_imports = true
