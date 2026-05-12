@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 /app/.venv/bin/python3 manage.py migrate
-/app/.venv/bin/celery -A {{cookiecutter.project_name}} worker -l info --detach
 /app/.venv/bin/uvicorn \
     {{cookiecutter.project_name}}.asgi:application \
     --host 0.0.0.0 \

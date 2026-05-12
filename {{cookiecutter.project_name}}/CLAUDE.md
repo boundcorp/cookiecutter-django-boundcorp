@@ -62,11 +62,16 @@ Use `@register(Model)` decorator from `utils/admin.py` — it auto-configures `r
 
 ### Infrastructure
 
-Docker Compose services: Django backend, PostgreSQL 16, Redis 7, Garage (S3), Celery worker, Vite frontend, Caddy ingress.
+Docker Compose services: Django backend, PostgreSQL 16, Redis 7, Garage (S3), Celery worker, Celery beat, Vite frontend, Caddy ingress.
 
 Env files loaded via `.envrc`: `infra/common/.env` → `infra/dev/.env` → `.env.local` (git-ignored).
 
-Production: Kubernetes + Helm. GitHub Actions deploys staging on PR, production on merge to main. Secrets encrypted with SOPS + Age.
+Production: Kubernetes + Helm. Deploy three workloads from the same image:
+- `main` via `infra/prod/start-uvicorn.sh`
+- `celery` via `infra/prod/start-celery-worker.sh`
+- `beat` via `infra/prod/start-celery-beat.sh`
+
+If a project defines `CELERY_BEAT_SCHEDULE`, `beat` must be deployed or those tasks will never run. See `infra/prod/README.md`.
 
 ## Test Patterns
 

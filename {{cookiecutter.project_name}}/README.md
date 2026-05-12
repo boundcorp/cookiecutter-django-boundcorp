@@ -17,7 +17,7 @@ No Docker needed. Uses embedded PostgreSQL via pgserver, filesystem storage, and
 
     make dev
 
-Starts: Django, PostgreSQL 16, Redis 7, Garage (S3), Celery worker, Vite dev server, and Caddy ingress.
+Starts: Django, PostgreSQL 16, Redis 7, Garage (S3), Celery worker, Celery beat, Vite dev server, and Caddy ingress.
 
 | Service | Internal Port | Host Port |
 |---------|--------------|-----------|
@@ -71,6 +71,7 @@ Tasks are defined with `@shared_task` in any app's `tasks.py`. Celery autodiscov
 
     # Zero-dep mode: tasks run synchronously (CELERY_TASK_ALWAYS_EAGER)
     # Compose mode: tasks sent to Redis broker, processed by celery worker
+    # Periodic tasks require the separate celery beat process
 
 ## Environment Variables
 
@@ -98,9 +99,15 @@ Tasks are defined with `@shared_task` in any app's `tasks.py`. Celery autodiscov
 
 ## Deployment
 
-Production deploys via Helm to Kubernetes. GitHub Actions handles the pipeline:
+Production deploys via Helm to Kubernetes. Run three separate workloads from the same image:
+
+- `main` serves ASGI traffic via `infra/prod/start-uvicorn.sh`
+- `celery` runs worker jobs via `infra/prod/start-celery-worker.sh`
+- `beat` runs `CELERY_BEAT_SCHEDULE` entries via `infra/prod/start-celery-beat.sh`
+
+GitHub Actions handles the pipeline:
 
 - **PR to main** triggers deploy-staging
 - **Merge to main** triggers deploy-production
 
-Secrets managed with SOPS + Age encryption. See `helm-values.*.secrets.yaml`.
+Secrets are managed with SOPS + Age encryption. See `helm-values.*.secrets.yaml` and [`infra/prod/README.md`](infra/prod/README.md) for the deploy contract.
