@@ -87,6 +87,9 @@ Tasks are defined with `@shared_task` in any app's `tasks.py`. Celery autodiscov
 | `DEBUG` | (false) | Django debug mode |
 | `APP_ENV` | `development` | Environment: development/staging/production |
 | `SENTRY_BACKEND_URL` | (disabled) | Sentry DSN for error tracking |
+| `TELEMETRY_METRICS_ENABLED` | `true` | Enable Prometheus metrics middleware and `/metrics/` |
+| `TELEMETRY_METRICS_PATH` | `metrics` | HTTP path segment for the Prometheus scrape endpoint |
+| `TELEMETRY_NAMESPACE` | `{{cookiecutter.project_name}}` | Prefix used for Prometheus metric names |
 
 ## Testing
 
@@ -109,5 +112,14 @@ GitHub Actions handles the pipeline:
 
 - **PR to main** triggers deploy-staging
 - **Merge to main** triggers deploy-production
+- **Merge to main** also triggers `sync-grafana-dashboards.yml` for app-owned dashboards in `docs/dashboards/`
 
 Secrets are managed with SOPS + Age encryption. See `helm-values.*.secrets.yaml` and [`infra/prod/README.md`](infra/prod/README.md) for the deploy contract.
+
+## Telemetry
+
+The template exposes Prometheus metrics at `/metrics/` and ships managed Grafana dashboard JSON in `docs/dashboards/`.
+
+- HTTP metrics: `{{cookiecutter.project_name}}_http_requests_total` and `{{cookiecutter.project_name}}_http_request_duration_seconds`
+- Celery metrics: `{{cookiecutter.project_name}}_celery_task_started_total`, `{{cookiecutter.project_name}}_celery_task_succeeded_total`, `{{cookiecutter.project_name}}_celery_task_failures_total`, and `{{cookiecutter.project_name}}_celery_task_latency_seconds`
+- Grafana sync: `.github/workflows/sync-grafana-dashboards.yml` uploads those dashboards from CI using `GRAFANA_SA_TOKEN`

@@ -1,0 +1,35 @@
+name: Sync Grafana Dashboards
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/dashboards/*.json"
+      - "scripts/sync_grafana_dashboards.py"
+      - ".github/workflows/sync-grafana-dashboards.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install sync dependencies
+        run: python -m pip install requests
+
+      - name: Sync dashboards
+        env:
+          GRAFANA_URL: ${{ secrets.GRAFANA_URL }}
+          GRAFANA_SA_TOKEN: ${{ secrets.GRAFANA_SA_TOKEN }}
+          GRAFANA_PROMETHEUS_DATASOURCE_UID: ${{ secrets.GRAFANA_PROMETHEUS_DATASOURCE_UID }}
+          GRAFANA_FOLDER_UID: ${{ secrets.GRAFANA_FOLDER_UID }}
+          GRAFANA_FOLDER_TITLE: ${{ github.event.repository.name }}
+        run: python scripts/sync_grafana_dashboards.py
