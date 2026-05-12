@@ -31,5 +31,5 @@ jobs:
           GRAFANA_SA_TOKEN: ${{ secrets.GRAFANA_SA_TOKEN }}
           GRAFANA_PROMETHEUS_DATASOURCE_UID: ${{ secrets.GRAFANA_PROMETHEUS_DATASOURCE_UID }}
           GRAFANA_FOLDER_UID: ${{ secrets.GRAFANA_FOLDER_UID }}
-          GRAFANA_FOLDER_TITLE: ${{ github.event.repository.name }}
+          GRAFANA_FOLDER_TITLE: ${{ vars.GRAFANA_FOLDER_TITLE || github.repository }}
         run: python scripts/sync_grafana_dashboards.py

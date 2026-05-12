@@ -122,4 +122,4 @@ The template exposes Prometheus metrics at `/metrics/` and ships managed Grafana
 
 - HTTP metrics: `{{cookiecutter.project_name}}_http_requests_total` and `{{cookiecutter.project_name}}_http_request_duration_seconds`
 - Celery metrics: `{{cookiecutter.project_name}}_celery_task_started_total`, `{{cookiecutter.project_name}}_celery_task_succeeded_total`, `{{cookiecutter.project_name}}_celery_task_failures_total`, and `{{cookiecutter.project_name}}_celery_task_latency_seconds`
-- Grafana sync: `.github/workflows/sync-grafana-dashboards.yml` uploads those dashboards from CI using `GRAFANA_SA_TOKEN`
+- Grafana sync: `.github/workflows/sync-grafana-dashboards.yml` uploads those dashboards from CI using `GRAFANA_SA_TOKEN`; it defaults to the Grafana folder title `owner/repo` and can be overridden with the repo variable `GRAFANA_FOLDER_TITLE`

@@ -368,7 +368,7 @@ jobs:
           GRAFANA_SA_TOKEN: ${{ secrets.GRAFANA_SA_TOKEN }}
           GRAFANA_PROMETHEUS_DATASOURCE_UID: ${{ secrets.GRAFANA_PROMETHEUS_DATASOURCE_UID }}
           GRAFANA_FOLDER_UID: ${{ secrets.GRAFANA_FOLDER_UID }}
-          GRAFANA_FOLDER_TITLE: ${{ github.event.repository.name }}
+          GRAFANA_FOLDER_TITLE: ${{ vars.GRAFANA_FOLDER_TITLE || github.repository }}
         run: python scripts/sync_grafana_dashboards.py
 ```
 
@@ -409,6 +409,12 @@ gh secret set GRAFANA_FOLDER_UID --repo <org>/<repo>
 ```
 
 If you do not know the folder UID yet, omit `GRAFANA_FOLDER_UID` and let the workflow create or reuse a folder based on `GRAFANA_FOLDER_TITLE`.
+
+By default the cookiecutter workflow uses `owner/repo` as `GRAFANA_FOLDER_TITLE`, which avoids collisions better than a bare repo name. If the desired Grafana folder name differs from the GitHub repo slug, set a repo variable instead of patching the workflow:
+
+```bash
+gh variable set GRAFANA_FOLDER_TITLE --repo <org>/<repo> --body "<grafana-folder-title>"
+```
 
 ## Step 7: Shared fleet dashboard
 
