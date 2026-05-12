@@ -32,6 +32,10 @@ def grafana_request(method, path, **kwargs):
 
 def normalize_dashboard(raw_dashboard):
     dashboard = json.loads(json.dumps(raw_dashboard))
+    if not dashboard.get("uid"):
+        raise ValueError("Dashboard JSON must define a stable uid for Grafana upserts.")
+    if not dashboard.get("title"):
+        raise ValueError("Dashboard JSON must define a title.")
     dashboard["editable"] = False
     dashboard["refresh"] = "30s"
     tags = set(dashboard.get("tags", []))
