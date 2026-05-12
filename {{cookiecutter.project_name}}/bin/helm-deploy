@@ -9,30 +9,19 @@ VERSION=$(test -z "$1" && echo "latest" || echo "$1")
 CHANNEL=$(test -z "$2" && echo "staging" || echo "$2")
 VALUES=$(test -z "$3" && echo "helm-values.$CHANNEL.secrets.yaml" || echo "$3")
 
-for TAG_IMAGE in "release-backend" "release-frontend"; do
-  export SUFFIX="$CHANNEL/$TAG_IMAGE"
-  export SOURCE_IMAGE="$CI_REGISTRY_IMAGE/$TAG_IMAGE:$VERSION"
-  export TAG="$CI_REGISTRY_IMAGE/$CHANNEL/$TAG_IMAGE:$VERSION"
-
-  echo
-  echo "********************************"
-  echo "Tagging $SOURCE_IMAGE as '$TAG'"
-  echo "********************************"
-  echo
-
-  [[ "$BUILD_AND_PUSH" == "true" ]] && bin/push "$VERSION" "$TAG_IMAGE" || docker pull $SOURCE_IMAGE
-  docker tag "$SOURCE_IMAGE" "$TAG"
-  docker push "$TAG"
-
-done
 NAMESPACE="${CHANNEL}"
 echo "Deploying helm release into $NAMESPACE..."
 
 
 kubectl get pods -n $NAMESPACE
 
-helm upgrade --install palomarsystems deploy/chart/ \
+helm upgrade --install {{cookiecutter.project_name}} bjw-s/app-template \
+    --version=3.4.0 \
     --values="$VALUES" \
     -n $NAMESPACE \
-    --set image.repository=$CI_REGISTRY_IMAGE/$CHANNEL \
-    --set image.tag=$VERSION
+    --set controllers.main.containers.main.image.repository=$(echo $CI_REGISTRY_IMAGE | tr '[:upper:]' '[:lower:]') \
+    --set controllers.main.containers.main.image.tag=$VERSION \
+    --set controllers.celery.containers.main.image.repository=$(echo $CI_REGISTRY_IMAGE | tr '[:upper:]' '[:lower:]') \
+    --set controllers.celery.containers.main.image.tag=$VERSION \
+    --set controllers.beat.containers.main.image.repository=$(echo $CI_REGISTRY_IMAGE | tr '[:upper:]' '[:lower:]') \
+    --set controllers.beat.containers.main.image.tag=$VERSION
