@@ -17,7 +17,7 @@ def env_variable_truthy(key, default=""):
 ENVIRONMENT = os.environ.get("APP_ENV", Environments.DEVELOPMENT).lower()
 BACKEND_PORT = int(os.environ.get("DEVELOP_BACKEND_PORT", 8000))
 INGRESS_PORT = int(os.environ.get("DEVELOP_INGRESS_PORT", 8888))
-DEBUG = os.environ.get("DEBUG", "") == "true"
+DEBUG = os.environ.get("DJANGO_DEBUG", "") == "true"
 ROOT_URLCONF = "{{cookiecutter.project_name}}.settings.urls"
 
 
