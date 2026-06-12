@@ -74,6 +74,9 @@ DEFAULT_FROM_EMAIL = SERVER_EMAIL
 
 AUTH_USER_MODEL = "users.User"
 AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
+TELEMETRY_NAMESPACE = os.environ.get("TELEMETRY_NAMESPACE", "{{cookiecutter.project_name}}").replace("-", "_")
+TELEMETRY_METRICS_ENABLED = env_variable_truthy("TELEMETRY_METRICS_ENABLED", "true")
+TELEMETRY_METRICS_PATH = os.environ.get("TELEMETRY_METRICS_PATH", "metrics").strip("/") or "metrics"
 
 INSTALLED_APPS = [
     "django.contrib.auth",
@@ -212,6 +215,7 @@ WHITENOISE_MANIFEST_STRICT = False
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "{{cookiecutter.project_name}}.observability.middleware.PrometheusMetricsMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",

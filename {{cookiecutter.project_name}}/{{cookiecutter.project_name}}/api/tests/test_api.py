@@ -11,6 +11,16 @@ def test_healthz(client: Client):
 
 
 @pytest.mark.django_db
+def test_metrics_endpoint(client: Client):
+    client.get("/api/healthz")
+    response = client.get("/metrics/")
+    assert response.status_code == 200
+    body = response.content.decode()
+    assert "{{cookiecutter.project_name}}_http_requests_total" in body
+    assert 'route="api/healthz"' in body
+
+
+@pytest.mark.django_db
 def test_profile_unauthenticated(client: Client):
     response = client.get("/api/auth/profile")
     assert response.status_code == 401

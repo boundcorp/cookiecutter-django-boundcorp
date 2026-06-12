@@ -56,17 +56,28 @@ Available mixins from `utils/models.py`:
 
 Use `@shared_task` from celery. Tasks are autodiscovered from `tasks.py` in any installed app. In zero-dep mode, tasks execute synchronously in-process.
 
+### Telemetry
+
+Prometheus metrics are exposed at `/metrics/`. The template already instruments HTTP requests and Celery task execution via `observability/`.
+
+Managed Grafana dashboard JSON lives in `docs/dashboards/`, and GitHub Actions syncs it with `scripts/sync_grafana_dashboards.py`. Keep dashboards `editable=false`, tagged `json-managed`, and on a `30s` refresh interval.
+
 ### Admin
 
 Use `@register(Model)` decorator from `utils/admin.py` — it auto-configures `raw_id_fields` for all relation fields.
 
 ### Infrastructure
 
-Docker Compose services: Django backend, PostgreSQL 16, Redis 7, Garage (S3), Celery worker, Vite frontend, Caddy ingress.
+Docker Compose services: Django backend, PostgreSQL 16, Redis 7, Garage (S3), Celery worker, Celery beat, Vite frontend, Caddy ingress.
 
 Env files loaded via `.envrc`: `infra/common/.env` → `infra/dev/.env` → `.env.local` (git-ignored).
 
-Production: Kubernetes + Helm. GitHub Actions deploys staging on PR, production on merge to main. Secrets encrypted with SOPS + Age.
+Production: Kubernetes + Helm. Deploy three workloads from the same image:
+- `main` via `infra/prod/start-uvicorn.sh`
+- `celery` via `infra/prod/start-celery-worker.sh`
+- `beat` via `infra/prod/start-celery-beat.sh`
+
+If a project defines `CELERY_BEAT_SCHEDULE`, `beat` must be deployed or those tasks will never run. See `infra/prod/README.md`.
 
 ## Test Patterns
 

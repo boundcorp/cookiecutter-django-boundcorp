@@ -17,7 +17,7 @@ No Docker needed. Uses embedded PostgreSQL via pgserver, filesystem storage, and
 
     make dev
 
-Starts: Django, PostgreSQL 16, Redis 7, Garage (S3), Celery worker, Vite dev server, and Caddy ingress.
+Starts: Django, PostgreSQL 16, Redis 7, Garage (S3), Celery worker, Celery beat, Vite dev server, and Caddy ingress.
 
 | Service | Internal Port | Host Port |
 |---------|--------------|-----------|
@@ -71,6 +71,7 @@ Tasks are defined with `@shared_task` in any app's `tasks.py`. Celery autodiscov
 
     # Zero-dep mode: tasks run synchronously (CELERY_TASK_ALWAYS_EAGER)
     # Compose mode: tasks sent to Redis broker, processed by celery worker
+    # Periodic tasks require the separate celery beat process
 
 ## Environment Variables
 
@@ -86,6 +87,9 @@ Tasks are defined with `@shared_task` in any app's `tasks.py`. Celery autodiscov
 | `DEBUG` | (false) | Django debug mode |
 | `APP_ENV` | `development` | Environment: development/staging/production |
 | `SENTRY_BACKEND_URL` | (disabled) | Sentry DSN for error tracking |
+| `TELEMETRY_METRICS_ENABLED` | `true` | Enable Prometheus metrics middleware and `/metrics/` |
+| `TELEMETRY_METRICS_PATH` | `metrics` | HTTP path segment for the Prometheus scrape endpoint |
+| `TELEMETRY_NAMESPACE` | `{{cookiecutter.project_name}}` | Prefix used for Prometheus metric names |
 
 ## Testing
 
@@ -98,9 +102,24 @@ Tasks are defined with `@shared_task` in any app's `tasks.py`. Celery autodiscov
 
 ## Deployment
 
-Production deploys via Helm to Kubernetes. GitHub Actions handles the pipeline:
+Production deploys via Helm to Kubernetes. Run three separate workloads from the same image:
+
+- `main` serves ASGI traffic via `infra/prod/start-uvicorn.sh`
+- `celery` runs worker jobs via `infra/prod/start-celery-worker.sh`
+- `beat` runs `CELERY_BEAT_SCHEDULE` entries via `infra/prod/start-celery-beat.sh`
+
+GitHub Actions handles the pipeline:
 
 - **PR to main** triggers deploy-staging
 - **Merge to main** triggers deploy-production
+- **Merge to main** also triggers `sync-grafana-dashboards.yml` for app-owned dashboards in `docs/dashboards/`
 
-Secrets managed with SOPS + Age encryption. See `helm-values.*.secrets.yaml`.
+Secrets are managed with SOPS + Age encryption. See `helm-values.*.secrets.yaml` and [`infra/prod/README.md`](infra/prod/README.md) for the deploy contract.
+
+## Telemetry
+
+The template exposes Prometheus metrics at `/metrics/` and ships managed Grafana dashboard JSON in `docs/dashboards/`.
+
+- HTTP metrics: `{{cookiecutter.project_name}}_http_requests_total` and `{{cookiecutter.project_name}}_http_request_duration_seconds`
+- Celery metrics: `{{cookiecutter.project_name}}_celery_task_started_total`, `{{cookiecutter.project_name}}_celery_task_succeeded_total`, `{{cookiecutter.project_name}}_celery_task_failures_total`, and `{{cookiecutter.project_name}}_celery_task_latency_seconds`
+- Grafana sync: `.github/workflows/sync-grafana-dashboards.yml` uploads those dashboards from CI using `GRAFANA_SA_TOKEN`; it defaults to the Grafana folder title `owner/repo` and can be overridden with the repo variable `GRAFANA_FOLDER_TITLE`
